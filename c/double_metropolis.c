@@ -37,9 +37,8 @@ double posterior_pdf_alpha();
 double posterior_pdf_eta();
 double posterior_pdf_tau2();
 
-void dm_step1();
-void dm_step2();
-void dm_step3();
+double dm_step1(double theta0, pdf target_pdf, double var);
+double dm_step2(int size_x,double * x,pdf target, double theta_new, double theta_current);
 /**
  * Assuming random walk chain means:
  *  	- proposal distribution q is normal with mean 0
@@ -58,7 +57,7 @@ double r_random_walk_chain(double current_y, double var){
 
 
 /**
- * this function is not used assuming random walk chain
+ * this function is not used under random walk chain
  **/
 double d_random_walk_chain(double current_y, double proposed_y,double var){
 	//calculate density value of the proposal distribution (q)
@@ -112,6 +111,11 @@ double dm_step2(int size_x,double * x,pdf target, double theta_new, double theta
 	if (u<=alpha) return theta_new;//accepted;
 	else return theta_current;
 }
+
+void auxiliary_y_gibbs(double * x, double * y, _Bool * neighbor, double tau2){
+
+}
+
 
 int main(void){
 	return 0;
