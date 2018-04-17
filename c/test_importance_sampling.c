@@ -8,8 +8,7 @@
 
 typedef double(*func)(double);
 
-
-// Test P(Y>=0.3) given Y~N(0,1) truth == 0.00139
+// Test P(Y>=0.3) given Y~N(0,1)
 
 double h(double Y)
 {
@@ -19,42 +18,31 @@ double h(double Y)
 		return 0.0;
 }
 
-double g(double Y)
-{
-	return dnorm(Y,4.0,1.0,0);
-}
+double g(double Y) {return dnorm(Y, 4.0, 1.0, 0); }
 
-double G(double X)
-{
-	return rnorm(4.0,1.0);
-}
+double G(double X) { ++X; return rnorm(4.0, 1.0); } // ++x to remove warning...
 
-double f(double Y)
-{
-	return dnorm(Y,0.0,1.0,0);
-}
+double f(double Y) {return dnorm(Y, 0.0, 1.0, 0); }
 
 
 int main(void)
 {
 	int flag;
-	double E = 0.0;
-	double Var = 0.0;
 	double Output[2];
-	int const N = 100000;
+	int const N = 1000;
 
-	func ptr2h = &h;
-	func ptr2g = &g;
-	func ptr2G = &G;
-	func ptr2f = &f;
-
-	flag = do_important_sampling(ptr2h, ptr2f, ptr2g, ptr2G, N, Output);
+	flag = do_important_sampling(h, f, g, G, N, Output);
 	if (flag == 0) {
-		E = Output[0];
-		Var = Output[1];
-		fprintf(stdout,"E = %g\n",E);
-		fprintf(stdout,"Var = %g\n",Var);
+		double E = Output[0];
+		double Var = Output[1];
+		double Tru_V = pnorm(3.0, 0.0, 1.0, 0, 0);
+		double Err_V = fabs(E - Tru_V);
+
+		fprintf(stdout, "E = %g\n", E);
+		fprintf(stdout, "Var = %g\n", Var);
+		fprintf(stdout, "Truth = %g\n", Tru_V);
+		fprintf(stdout, "Error = %g\n", Err_V);
 	} else
-		fprintf(stdout,"Something Bad Happened...\n");
+		fprintf(stdout, "Something Bad Happened...\n");
 	return 0;
 }
