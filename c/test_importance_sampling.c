@@ -13,7 +13,6 @@ typedef double(*func)(double);
 
 double h(double Y)
 {
-	fprintf(stdout,"In h\n");
 	if (Y > 3.0)
 		return 1.0;
 	else
@@ -22,45 +21,40 @@ double h(double Y)
 
 double g(double Y)
 {
-	fprintf(stdout,"In g\n");
 	return dnorm(Y,4.0,1.0,0);
 }
 
 double G(double X)
 {
-	fprintf(stdout,"In G\n");
 	return rnorm(4.0,1.0);
 }
 
 double f(double Y)
 {
-	fprintf(stdout,"In f\n");
 	return dnorm(Y,0.0,1.0,0);
 }
 
 
 int main(void)
 {
+	int flag;
 	double E = 0.0;
-	int const N = 1000;
-	
-	double temp = h(0.0);
-	temp = g(0.0);
-	temp = G(0.0);
-	temp = f(0.0);
-	
-	func *ptr2h = &h;
-	func *ptr2g = &g;
-	func *ptr2G = &G;
-	func *ptr2f = &f;
+	double Var = 0.0;
+	double Output[2];
+	int const N = 100000;
 
-	E = do_important_sampling(ptr2h, ptr2f, ptr2g, ptr2G, N); // NOT WORKING!!!
-/*	for(int k = 0; k < N; ++k) {*/
-/*		double X = runif(0.0,1.0);*/
-/*		double Y = G(X);*/
-/*		E += h(Y)*f(Y)/g(Y);*/
-/*	}*/
-/*	E /= N;*/
-	fprintf(stdout,"E = %g\n",E);
+	func ptr2h = &h;
+	func ptr2g = &g;
+	func ptr2G = &G;
+	func ptr2f = &f;
+
+	flag = do_important_sampling(ptr2h, ptr2f, ptr2g, ptr2G, N, Output);
+	if (flag == 0) {
+		E = Output[0];
+		Var = Output[1];
+		fprintf(stdout,"E = %g\n",E);
+		fprintf(stdout,"Var = %g\n",Var);
+	} else
+		fprintf(stdout,"Something Bad Happened...\n");
 	return 0;
 }

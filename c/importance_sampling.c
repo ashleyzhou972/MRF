@@ -7,21 +7,34 @@
 
 #include "importance_sampling.h"
 
-double do_important_sampling(func *h, func *f, func *g, func *G, int numsamples)
+int do_important_sampling(func h, func f, func g, func G, int numsamples, double *output)
 {
+	double X, Y, Enp1;
 	double E = 0.0;
+	double E_old = 0.0;
+	double V = 0.0;
+	double V_old = 0.0;
 
 	for(int k = 0; k < numsamples; ++k) {
-		fprintf(stdout,"E = %g\n",E);
-		double X = runif(0.0,1.0);
-		fprintf(stdout,"X = %g\n",X);
-		double Y = (*G)(X);
-		fprintf(stdout,"Y = %g\n",Y);
-		E += (*h)(Y) * (*f)(Y) / (*g)(Y);
+		E_old = E;
+		V_old = V;
+		X = runif(0.0,1.0);
+		Y = (*G)(X);
+
+		Enp1 = (*h)(Y) * (*f)(Y) / (*g)(Y);
+		E = k*E_old + Enp1;
+		E /= k+1;
+
+		V = (E_old - Enp1) * (E_old - Enp1);
+		V /= k+1;
+		V += V_old;
+		V *= (double)k / (k + 1);
 	}
 
-	E /= numsamples;
+/*	E /= numsamples;*/
+	output[0] = E;
+	output[1] = V;
 
-	return E;
+	return 0;
 }
 
