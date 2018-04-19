@@ -6,7 +6,7 @@
 
 #include "../importance_sampling.h"
 
-typedef double(*func)(double);
+// typedef double(*func)(double);
 
 double h(double Y)
 {

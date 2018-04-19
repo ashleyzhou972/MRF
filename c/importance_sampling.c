@@ -24,6 +24,9 @@ int do_important_sampling(func h, func f, func g, func G, int numsamples, double
 		E = k*E_old + Enp1;
 		E /= kp1;
 
+		// Variance Calculation may not be needed...
+		// If the variance is not needed, a differnt
+		// algorithm can be used to reduce run time
 		V = (E_old - Enp1);
 		V *= V;
 		V /= kp1;
