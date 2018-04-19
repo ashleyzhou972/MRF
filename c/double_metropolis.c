@@ -112,7 +112,7 @@ double dm_step2(int size_x,double * x,pdf target, double theta_new, double theta
 	else return theta_current;
 }
 
-void auxiliary_y_gibbs(double * x, double * y, _Bool * neighbor, double tau2){
+void auxiliary_y_gibbs(double * x, double * y, _Bool ** neighbor, double tau2){
 
 }
 
