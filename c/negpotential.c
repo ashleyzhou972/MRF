@@ -47,6 +47,7 @@ double H_i(double * y, int i,  double * ystar, int size_y, int ** neighbor,
 	mu = alpha+eta*vector_multiplication(neighbor[i],ystar_subtracted,size_y);
 	log_dnorm = dnorm(y[i], mu, tau2, 1)-dnorm(ystar[i],mu,tau2,1);
        		//1 for log = TRUE
+	printf("H(%d) is %g (in logscale)\n", i, log_dnorm);
 	return log_dnorm;
 
 }
@@ -62,6 +63,7 @@ double H_ij(double * y, int i, int j,  double * ystar, int size_y ,
 	mu1 = alpha + eta*vector_multiplication(neighbor[i], ystar_subtracted, size_y);
 	log_dnorm = dnorm(y[i],mu1,tau2,1) + dnorm(ystar[i],mu2,tau2,1)
 		- dnorm(ystar[i],mu1,tau2,1) - dnorm(y[i],mu2,tau2,1);
+	printf("H(%d,%d) is %g in logscale\n", i,j,log_dnorm);
 	return log_dnorm;
 }
 

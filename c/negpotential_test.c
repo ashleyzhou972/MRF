@@ -15,6 +15,7 @@
 
 
 int main(void){
+	int N = 100;
 	double * y = NULL;
 	double * ystar = NULL;
 	unsigned int seed1 = rand();
@@ -22,31 +23,31 @@ int main(void){
 	int ** neighbor = NULL;
 	set_seed(seed1, seed2);
 	int i;
-	y = malloc(100*sizeof(double));
-	ystar = malloc(100*sizeof(double));
-	neighbor = malloc(100*sizeof(int *));
-	for (i =0; i<100;i++) neighbor[i] = malloc(100*sizeof(int));
+	y = malloc(N*sizeof(double));
+	ystar = malloc(N*sizeof(double));
+	neighbor = malloc(N*sizeof(int *));
+	for (i =0; i<N;i++) neighbor[i] = malloc(N*sizeof(int));
 	if (!y & !ystar & !neighbor)  {
 		
 		printf("Error allocating memory!\n");
 		exit(EXIT_FAILURE);
 	} 
 
-	for (i = 0; i<100;i++){
+	for (i = 0; i<N;i++){
 		y[i] = rnorm(0,1.5);
 		ystar[i] = 0.0;
 		//printf("%g", y[i]);
-		for (int j = 0; j<100;j++){
+		for (int j = 0; j<N;j++){
 			neighbor[i][j] = rbinom(1,0.5);
 			//printf("neighbor matrix %d %d is %d", i, j, neighbor[i][j]);
 		}
 	}
 	double out;
-	out = negpotential(y, ystar, 100, neighbor, 2.0, 0.15,5.0);
+	out = negpotential(y, ystar, N, neighbor, 2.0, 0.15,5.0);
 	printf("result is %g\n", out);
 	free(y);
 	free(ystar);
-	for (i=0;i<100;i++) free(neighbor[i]);
+	for (i=0;i<N;i++) free(neighbor[i]);
 	free(neighbor);
 	return 0;
 }
