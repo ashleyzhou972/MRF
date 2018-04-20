@@ -11,16 +11,16 @@
  *
  **/
 
-double negpotential(double * y, double * ystar, int size_y, double ** neighbor,
+double negpotential(double * y, double * ystar, int size_y, int ** neighbor,
 	       	double alpha, double eta, double tau2);
-double H_i(double * y, int i,  double * ystar, int size_y, double ** neighbor, 
+double H_i(double * y, int i,  double * ystar, int size_y, int ** neighbor, 
 		double alpha, double eta, double tau2);
 double H_ij(double * y, int i, int j,  double * ystar, int size_y ,
-		double ** neighbor, double alpha, double eta, double tau2);
-double vector_multiplication(double * array1, double * array2, int size);
+		int ** neighbor, double alpha, double eta, double tau2);
+double vector_multiplication(int * array1, double * array2, int size);
 
 
-double negpotential(double * y, double * ystar, int size_y, double ** neighbor,
+double negpotential(double * y, double * ystar, int size_y, int ** neighbor,
 	       	double alpha, double eta, double tau2){
 	double summand_i = 0;
 	double summand_ij = 0;
@@ -39,10 +39,12 @@ double negpotential(double * y, double * ystar, int size_y, double ** neighbor,
 
 
 
-double H_i(double * y, int i,  double * ystar, int size_y, double ** neighbor, 
+double H_i(double * y, int i,  double * ystar, int size_y, int ** neighbor, 
 		double alpha, double eta, double tau2){
 	double mu, log_dnorm;
-	mu = alpha + eta*vector_multiplication(neighbor[i],ystar-alpha,size_y);
+	double * ystar_subtracted = ystar; //just initialization;
+	for (int k = 0;k<size_y;k++) ystar_subtracted[k] = ystar[k] - alpha;
+	mu = alpha+eta*vector_multiplication(neighbor[i],ystar_subtracted,size_y);
 	log_dnorm = dnorm(y[i], mu, tau2, 1)-dnorm(ystar[i],mu,tau2,1);
        		//1 for log = TRUE
 	return log_dnorm;
@@ -51,22 +53,23 @@ double H_i(double * y, int i,  double * ystar, int size_y, double ** neighbor,
 
 
 double H_ij(double * y, int i, int j,  double * ystar, int size_y ,
-		double ** neighbor, double alpha, double eta, double tau2){
-	double mu1, mu2 log_dnorm;
-	double * ystar_temp = ystar;
-	ystar_temp[j] = y[j];
-	mu1 = alpha + eta*vector_multiplication(neighbor[i], ystar_temp, size_y);
-	mu2 = alpha + eta*vector_multiplication(neighbor[i], ystar,size_y);
+		int ** neighbor, double alpha, double eta, double tau2){
+	double mu1, mu2, log_dnorm;
+	double * ystar_subtracted = ystar; //this is just initialization;
+	for (int k = 0;k<size_y;k++) ystar_subtracted[k] = ystar[k] - alpha;
+	mu2 = alpha + eta*vector_multiplication(neighbor[i], ystar_subtracted,size_y);
+	ystar_subtracted[j] = y[j]-alpha;
+	mu1 = alpha + eta*vector_multiplication(neighbor[i], ystar_subtracted, size_y);
 	log_dnorm = dnorm(y[i],mu1,tau2,1) + dnorm(ystar[i],mu2,tau2,1)
 		- dnorm(ystar[i],mu1,tau2,1) - dnorm(y[i],mu2,tau2,1);
 	return log_dnorm;
 }
 
 
-double vector_multiplication(double * array1, double * array2, int size){
+double vector_multiplication(int * array1, double * array2, int size){
 	double summand = 0;
 	for (int i=0;i<size;i++){
-		summand += array1[i]*array2[i];
+		summand += (double) array1[i]*array2[i];
 	}
 	return summand;
 }
