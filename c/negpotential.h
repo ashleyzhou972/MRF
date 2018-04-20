@@ -4,11 +4,11 @@
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
 
-
-typedef double (* pdf)(double, double *);
-double negpotential(double* w, double alpha, double eta, double tau2,); //TODO
-double Hij(double y_i, double  ystar_i, double y_j, double ystar_j, 
-	       pdf g);
-double Hi(double y_i, double ystar_i, pdf g);
-
+double negpotential(double * y, double * ystar, int size_y, double ** neighbor,
+	       	double alpha, double eta, double tau2);
+double H_i(double * y, int i,  double * ystar, int size_y, double ** neighbor, 
+		double alpha, double eta, double tau2);
+double H_ij(double * y, int i, int j,  double * ystar, int size_y ,
+		double ** neighbor, double alpha, double eta, double tau2);
+double vector_multiplication(double * array1, double * array2, int size);
 
