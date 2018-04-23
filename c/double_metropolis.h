@@ -16,7 +16,7 @@ typedef double (* pdf)(double, double *);
 //pdf functions, fisrt  x, second is pointer to other parameters;
 typedef double (*negp) (double *, double);
 //first x, second parameter. only one parameter;
-typedef void (*auxiliary)(int, double *, double * int **, double *);
+typedef void (*auxiliary)(int, double *, double *, int **, double *);
 //generate auxiliary variable y, given special parameter;
 
 

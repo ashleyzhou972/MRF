@@ -15,7 +15,7 @@
 
 
 int main(void){
-	int N = 100;
+	int N = 10000;
 	double * y = NULL;
 	double * ystar = NULL;
 	unsigned int seed1 = rand();
@@ -34,7 +34,7 @@ int main(void){
 	} 
 
 	for (i = 0; i<N;i++){
-		y[i] = rnorm(0,1.5);
+		y[i] = rnorm(0,0.5);
 		ystar[i] = 0.0;
 		//printf("%g", y[i]);
 		for (int j = 0; j<N;j++){
