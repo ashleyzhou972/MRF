@@ -3,7 +3,12 @@
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
-
+/**
+ * @file negpotential.h
+ * @author Naihui Zhou (nzhou@iastate.edu)
+ * Function to calculate negpotential function Q
+ *
+ **/
 double negpotential(double * y, double * ystar, int size_y, int ** neighbor,
 	       	double alpha, double eta, double tau2);
 double H_i(double * y, int i,  double * ystar, int size_y, int ** neighbor, 

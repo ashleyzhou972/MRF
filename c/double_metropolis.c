@@ -10,6 +10,8 @@
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
+#include <negpotential.h>
+
 
 typedef double (* pdf)(double, double *);
 //pdf functions, fisrt  x, second is pointer to other parameters;
@@ -17,11 +19,6 @@ typedef double (*negp) (double *, double);
 //first x, second parameter. only one parameter;
 
 
-double data_pdf();
-double mixing_pdf();
-double prior_pdf();
-
-double posterior_pdf_w();
 /**
  * Each of the parameters alpha, eta and tau2
  * has two types of posteriors:
@@ -33,12 +30,7 @@ double posterior_pdf_w();
  * 	- importance sampling -3
  * Only case 2 will be in this script
  **/
-double posterior_pdf_alpha();
-double posterior_pdf_eta();
-double posterior_pdf_tau2();
 
-double dm_step1(double theta0, pdf target_pdf, double var);
-double dm_step2(int size_x,double * x,pdf target, double theta_new, double theta_current);
 /**
  * Assuming random walk chain means:
  *  	- proposal distribution q is normal with mean 0
@@ -57,6 +49,7 @@ double r_random_walk_chain(double current_y, double var){
 
 
 /**
+ * ************************************
  * this function is not used under random walk chain
  **/
 double d_random_walk_chain(double current_y, double proposed_y,double var){
@@ -65,6 +58,9 @@ double d_random_walk_chain(double current_y, double proposed_y,double var){
 	//positions
 	return dnorm(current_y-proposed_y,0.0,var);
 }
+/**
+ **************************************
+ **/
 
 double jump_probability(double current, double proposed, pdf target){
 	//assuming random walk chain
@@ -76,14 +72,14 @@ double jump_probability(double current, double proposed, pdf target){
 	alpha = numerator/denominator;
 	return alpha;
 }
-double dm_step1(double theta0, pdf target_pdf, double var){
+double dm_step1(double theta0, pdf target, double var){
 	//in double-metropolis step 1,;
 	//target_pdf is the prior distribution of theta;
 	double theta_new,jp,alpha;
 	double u;
 	do{
 		theta_new = random_walk_chain(theta0, var);
-		jp = jump_probability(theta0, theta_new, target_pdf);
+		jp = jump_probability(theta0, theta_new, target);
 		if (jp<1) alpha=jp;
 		else alpha=1;
 		u = runif(0.0,1.0);
@@ -91,14 +87,16 @@ double dm_step1(double theta0, pdf target_pdf, double var){
        return theta_new;	
 }
 
-double dm_step2(int size_x,double * x,pdf target, double theta_new, double theta_current){
+double dm_step2(int size_x,double * x, double theta_new, double theta_current, 
+		int ** neighbor, negp negpotential, 
+		auxiliary auxiliary_y_gibbs_theta){
 	//target distribution here is the original 
 	//data distribution f(x|theta) in the Bayes rule,
 	//without the intractable constant;
 	//aka the negpotential function;
 	//First generate a auxiliary variable y;
-	double * y[size_x];
-	//TODO Gibbs procedure to simulate the auxiliary y;
+	double * y[size_x] = x;
+	auxiliary_y_gibbs_theta(size_x, x, y, neighbor, theta_new, );
 	double r, alpha;
 	double numerator, denominator;
 	numerator = negpotential(y,theta_current)*negpotential(x, theta_new);
@@ -112,11 +110,26 @@ double dm_step2(int size_x,double * x,pdf target, double theta_new, double theta
 	else return theta_current;
 }
 
-void auxiliary_y_gibbs(double * x, double * y, _Bool ** neighbor, double tau2){
-
+void auxiliary_y_gibbs(int size_x, double * x, double * y, int ** neighbor, 
+		double alpha, double eta, double tau2){
+	//One Gibbs round for each element in x;
+	//The generating pdf is the normal with mrf mu;
+	int i =0 ;
+	double mu_i, y_new_i;
+	y = x;//starting value is x;
+	//this may be redundant since y is initialized outside of this function;
+	for (i =0;i<size_x;i++){
+		mu_i = alpha + eta*vector_multiplication(neighbor[i], y,size_x);
+		y_new_i = rnorm(mu_i, tau2);
+		y[i] = y_new_i;
+	}
 }
 
 
-int main(void){
-	return 0;
+double vector_multiplication(int * array1, double * array2, int size){
+	double summand = 0;
+	for (int i=0;i<size;i++){
+		summand += (double) array1[i]*array2[i];
+	}
+	return summand;
 }
