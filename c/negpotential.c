@@ -16,11 +16,39 @@
 
 double negpotential(double *y, double *ystar, int size_y, int **neighbor, double alpha, double eta, double tau2)
 {
-	double summand_i = 0;
-	double summand_ij = 0;
 	double result;
 
-	// # pragma omp parallel for // To run on all available threads
+#ifdef OPENMP
+#ifndef USE_NUM_THREADS
+#	define USE_NUM_THREADS omp_get_max_threads()
+#endif
+
+	int num_threads = USE_NUM_THREADS;
+	double sum_1[num_threads];
+
+	for (int k = 0; k < num_threads; ++k)
+		sum_1[k] = 0.0;
+
+	omp_set_num_threads(num_threads); // Call needed threads
+	# pragma omp parallel for // To run on all available threads
+	for (int i = 0; i < size_y; ++i) {
+		int id = omp_get_thread_num(); // Get id of thread
+		sum_1[id] += H_i(y, i, ystar, size_y, neighbor, alpha, eta, tau2);
+		double sum_2 = 0.0;
+		for (int j = 0; j < size_y; j++){
+			sum_2 += H_ij(y, i, j, ystar, size_y, neighbor, alpha, eta, tau2);
+		}
+		sum_1[id] += sum_2;
+	}
+	result = 0.0;
+	for (int k = 0; k < num_threads; ++k)
+		result += sum_1[k];
+
+#else
+
+	double summand_i = 0;
+	double summand_ij = 0;
+
 	for (int i = 0; i < size_y; i++){
 		summand_i += H_i(y, i, ystar, size_y, neighbor, alpha, eta, tau2);
 		for (int j = 0; j < size_y; j++){
@@ -29,6 +57,8 @@ double negpotential(double *y, double *ystar, int size_y, int **neighbor, double
 		}
 	}
 	result = summand_i + summand_ij;
+
+#endif
 	return result;
 }
 
@@ -61,7 +91,7 @@ double H_ij(double * y, int i, int j,  double * ystar, int size_y ,
 	else {
 		double mu1, mu2, log_dnorm;
 		double ystar_subtracted[size_y];
-		
+
 		for (int k = 0;k<size_y;k++)
 			ystar_subtracted[k] = ystar[k] - alpha;
 
