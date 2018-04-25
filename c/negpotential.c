@@ -3,6 +3,7 @@
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
+#include <omp.h>
 
 #include "negpotential.h"
 
@@ -19,6 +20,7 @@ double negpotential(double *y, double *ystar, int size_y, int **neighbor, double
 	double summand_ij = 0;
 	double result;
 
+	# pragma omp parallel for // To run on all available threads
 	for (int i = 0; i < size_y; i++){
 		summand_i += H_i(y, i, ystar, size_y, neighbor, alpha, eta, tau2);
 		for (int j = 0; j < size_y; j++){
@@ -63,9 +65,9 @@ double H_ij(double * y, int i, int j,  double * ystar, int size_y ,
 		for (int k = 0;k<size_y;k++)
 			ystar_subtracted[k] = ystar[k] - alpha;
 
-		mu2 = alpha + eta*vector_multiplication(neighbor[i], ystar_subtracted,size_y);
-		ystar_subtracted[j] = y[j]-alpha;
-		mu1 = alpha + eta*vector_multiplication(neighbor[i], ystar_subtracted, size_y);
+		mu2 = alpha + eta * vector_multiplication(neighbor[i], ystar_subtracted, size_y);
+		ystar_subtracted[j] = y[j] - alpha;
+		mu1 = alpha + eta * vector_multiplication(neighbor[i], ystar_subtracted, size_y);
 
 		double ldnorm11, ldnorm12, ldnorm21, ldnorm22;
 
