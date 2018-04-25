@@ -4,6 +4,7 @@
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
 #include "negpotential.h"
+#include <time.h>
 /**
  * @file negpotential_test.c
  * @author Naihui Zhou (nzhou@iastate.edu)
@@ -15,9 +16,10 @@
 
 int main(void)
 {
-	int N = 2000;
+	int N = 20000;
 	double *y = NULL;
 	double *ystar = NULL;
+	srand(time(NULL));
 	unsigned int seed1 = rand();
 	unsigned int seed2 = rand();
 	int **neighbor = NULL;
@@ -39,11 +41,11 @@ int main(void)
 	}
 
 	for (i = 0; i < N; ++i) {
-		y[i] = rnorm(0,0.5);
+		y[i] = rnorm(0,1.5);
 		ystar[i] = 0.0;
 		//printf("%g", y[i]);
 		for (int j = 0; j<N;j++){
-			neighbor[i][j] = rbinom(1,0.5);
+			neighbor[i][j] = rbinom(1,0.3);
 			//printf("neighbor matrix %d %d is %d", i, j, neighbor[i][j]);
 		}
 	}
