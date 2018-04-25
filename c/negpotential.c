@@ -20,7 +20,7 @@ double negpotential(double *y, double *ystar, int size_y, int **neighbor, double
 	double summand_ij = 0;
 	double result;
 
-	# pragma omp parallel for // To run on all available threads
+	// # pragma omp parallel for // To run on all available threads
 	for (int i = 0; i < size_y; i++){
 		summand_i += H_i(y, i, ystar, size_y, neighbor, alpha, eta, tau2);
 		for (int j = 0; j < size_y; j++){
