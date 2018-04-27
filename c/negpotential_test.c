@@ -16,7 +16,7 @@
 
 int main(void)
 {
-	int N = 20000;
+	int N = 100;
 	double *y = NULL;
 	double *ystar = NULL;
 	srand(time(NULL));
@@ -41,7 +41,7 @@ int main(void)
 	}
 
 	for (i = 0; i < N; ++i) {
-		y[i] = rnorm(0,1.5);
+		y[i] = rnorm(0,0.2);
 		ystar[i] = 0.0;
 		//printf("%g", y[i]);
 		for (int j = 0; j<N;j++){
