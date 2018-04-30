@@ -2,7 +2,9 @@
  * 
  * Initial attempt at the double metropolis algorithm 
  * @author Naihui Zhou {nzhou@iastate.edu}
- * to run gcc -Wall -pedantic -o dm double_metropolis.c -lm -lRmath
+ * to run 
+ * gcc -Wall -pedantic -o dm double_metropolis.c negpotential.c 
+ * 	regular_metropolis.c -lm -lRmath 
  **/
 
 #include <stdio.h>
@@ -10,15 +12,16 @@
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
-#include <negpotential.h>
+#include "negpotential.h"
+#include "regular_metropolis.h"
 
 
 typedef double (* pdf)(double, double *);
 //pdf functions, fisrt  x, second is pointer to other parameters;
 typedef double (*negp) (double *, double);
 //first x, second parameter. only one parameter;
-typedef void (*auxiliary)(int, double *, double *,int **, double *);
-//generate auxiliary variable y, given special parameter;
+typedef void (*auxiliary)(double *);
+//generate auxiliary variable y 
 
 
 /**
@@ -32,9 +35,6 @@ double dm_step2(int size_x,double * x, double theta_new, double theta_current,
  * Distributional helper functions
  **/
 
-double r_random_walk_chain(double current_y, double var);
-double d_random_walk_chain(double current_y, double proposed_y,double var);
-double jump_probability(double current, double proposed, pdf target);
 void auxiliary_y_gibbs(int size_x, double * x, double * y, int ** neighbor, 
 		double alpha, double eta, double tau2);
 /**
@@ -46,67 +46,15 @@ double vector_multiplication(int * array1, double * array2, int size);
 
 
 
-/**
- * Each of the parameters alpha, eta and tau2
- * has two types of posteriors:
- * 	- The multivariate normal -1
- * 	- The negpotential function -2
- * For the negpotential function type posterior,
- * there are two methods to compute the intractable constant
- * 	- The double- metropolis algorithm
- * 	- importance sampling -3
- * Only case 2 will be in this script
- **/
-
-/**
- * Assuming random walk chain means:
- *  	- proposal distribution q is normal with mean 0
- *  	- q(current|proposed) == q(proposed|current)
- *  	- all q terms get cancelled in calculating jump probability
- **/
-
-double r_random_walk_chain(double current_y, double var){
-	//simulate (and return) a new value from the proposal 
-	//distribution (q), given current value;
-	double z, y;
-	z = rnorm(0.0,var);
-	y = current_y + z;
-	return y;
-}
-
-
-/**
- * ************************************
- * this function is not used under random walk chain
- **/
-double d_random_walk_chain(double current_y, double proposed_y,double var){
-	//calculate density value of the proposal distribution (q)
-	//should remain the same if exchange the current_y and proposed_y
-	//positions
-	return dnorm(current_y-proposed_y,0.0,var);
-}
-/**
- **************************************
- **/
-
-double jump_probability(double current, double proposed, pdf target){
-	//assuming random walk chain
-	double alpha;
-	double numerator, denominator;
-	double * dummy_param[2];
-	numerator = target(proposed, dummy_param); 
-	denominator = target(current, dummy_param); 
-	alpha = numerator/denominator;
-	return alpha;
-}
-double dm_step1(double theta0, pdf target, double var){
+double dm_step1(double theta0, pdf target, double var, double *target_params){
 	//in double-metropolis step 1,;
 	//target_pdf is the prior distribution of theta;
+	//target_pdf should return log scale
 	double theta_new,jp,alpha;
 	double u;
 	do{
 		theta_new = random_walk_chain(theta0, var);
-		jp = jump_probability(theta0, theta_new, target);
+		jp = jump_probability(theta0, theta_new, target, target_params);
 		if (jp<1) alpha=jp;
 		else alpha=1;
 		u = runif(0.0,1.0);
@@ -115,20 +63,21 @@ double dm_step1(double theta0, pdf target, double var){
 }
 
 double dm_step2(int size_x,double * x, double theta_new, double theta_current, 
-		int ** neighbor, negp negpotential, 
+		int ** neighbor, negp negpotential_theta, 
 		auxiliary auxiliary_y_gibbs_theta){
 	//target distribution here is the original 
 	//data distribution f(x|theta) in the Bayes rule,
 	//without the intractable constant;
 	//aka the negpotential function;
+	//The negpotential function should return in log scale;
 	//First generate a auxiliary variable y;
-	double * y[size_x] = x;
-	auxiliary_y_gibbs_theta(size_x, x, y, neighbor, theta_new, );
+	double * y[size_x];
+	auxiliary_y_gibbs_theta(y);
 	double r, alpha;
 	double numerator, denominator;
-	numerator = negpotential(y,theta_current)*negpotential(x, theta_new);
-	denominator = negpotential(x, theta_current)*negpotential(y,theta_new);
-	r = numerator/denominator;
+	numerator = negpotential_theta(y,theta_current)+negpotential_theta(x, theta_new);
+	denominator = negpotential_theta(x, theta_current)+negpotential_theta(y,theta_new);
+	r = exp(numerator-denominator);
 	if (r<1) alpha =r;
 	else alpha = 1;
 	double u;
@@ -152,7 +101,6 @@ void auxiliary_y_gibbs(int size_x, double * x, double * y, int ** neighbor,
 	}
 }
 
-
 double vector_multiplication(int * array1, double * array2, int size){
 	double summand = 0;
 	for (int i=0;i<size;i++){
@@ -160,3 +108,41 @@ double vector_multiplication(int * array1, double * array2, int size){
 	}
 	return summand;
 }
+/**
+ * *******************************************************************
+ * Above are the general functions
+ * Below are wrappers for specific parameters, iterations, etc
+ * ******************************************************************
+ **/
+
+/**
+ * For alpha:
+ **/
+double prior_alpha(double alpha_par, double *other_par){
+	//other_par should have upper bound of alpha uniform prior distribution;
+	return dunif(alpha_par,0,other_par[0],1);
+}
+
+double negp_alpha_t(double *y, double alpha_par){
+	double ystar[N];
+	for (int i=0;i<N;i++){
+		ystar[i] = 0.0;
+	}
+	return negpotential(y,ystar,N,neighbor,alpha_par,eta[t],tau2[t]);
+}
+
+
+double auxi_alpha_t(double *y){
+	return auxiliary_y_gibbs(N, x, y, neighbor, alpha_new, eta[t], tau2[t]);
+}
+
+double dm_step2_t_alpha(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double alpha_new, int **neighbor){
+	return dm_step2(N, w_bycol[t], alpha_new, alpha[t], neighbor, negp_alpha_t, auxi_alpha_t);
+}
+
+
+
+
+
+
+

@@ -33,7 +33,7 @@ double dm_step2(int size_x,double * x, double theta_new, double theta_current,
 
 double r_random_walk_chain(double current_y, double var);
 double d_random_walk_chain(double current_y, double proposed_y,double var);
-double jump_probability(double current, double proposed, pdf target);
+double jump_probability(double current, double proposed, pdf target, double *param);
 void auxiliary_y_gibbs(int size_x, double * x, double * y, int ** neighbor, 
 		double alpha, double eta, double tau2);
 /**
