@@ -23,6 +23,7 @@ typedef void (*auxiliary)(int, double *, double *,int **, double *);
 //generate auxiliary variable y, given special parameter;
 
 
+<<<<<<< HEAD
 void allocate(double **w, double **w_bycol, double ** alpha, 
 		double ** eta, double ** tau2,int N, int T){
 	*w = aligned_alloc(32, T * N * sizeof **w);
@@ -44,19 +45,40 @@ void allocate_column(double *w, double **w_bycol, int N, int T){
 	}
 }
 void free(double *w, double **w_bycol, double *alpha, double *eta, double *tau2){
+=======
+void allocate(double ** w, double ** alpha, double ** eta, double ** tau2,
+		int N, int T){
+	*w = aligned_alloc(64, T * N * sizeof **w);
+	*alpha = aligned_alloc(64, T*sizeof **alpha);
+	*eta = aligned_alloc(64, T*sizeof **eta);
+	*tau2 = aligned_alloc(64, T*sizeof **tau2);
+	if (!(w & alpha & eta & tau2)){
+		printf("Error allocating memory\n");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void free(double ** w, double **alpha, double ** eta, double ** tau2){
+>>>>>>> 031c08d20fc11466614949ba4ab88f6377e47b8b
 	free(w);
 	free(alpha);
 	free(eta);
 	free(tau2);
+<<<<<<< HEAD
 	free(w_bycol[0]);
 	free(w_bycol);
+=======
+>>>>>>> 031c08d20fc11466614949ba4ab88f6377e47b8b
 }
 
 
 /**
  * w is initialized to have rnorm(2,1)
  * w has N rows and T columns
+<<<<<<< HEAD
  * w[i,j] = w[i*N+j]
+=======
+>>>>>>> 031c08d20fc11466614949ba4ab88f6377e47b8b
  * we fill out the first column (iteration 0)
  **/
 void initialize(double alpha0, double eta0, double tau20, double *w, double *alpha, double *eta, double *tau2, int N, int T){
@@ -68,7 +90,10 @@ void initialize(double alpha0, double eta0, double tau20, double *w, double *alp
 	}
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 031c08d20fc11466614949ba4ab88f6377e47b8b
 
 int main(void){
 	int N = 100; //data size
@@ -96,6 +121,7 @@ int main(void){
 		- step2 Use dm to generate posterior eta
 		- step3 Use dm to generate posterior tau2
 	*/
+<<<<<<< HEAD
 	int i; //iterates through N
 	for (t = 0;t<T;t++){
 		printf("MC Iteration %d\n", t+1);
@@ -109,6 +135,15 @@ int main(void){
 	}
 	free(w,alpha,eta,tau2);
 	free(w_bycol);
+=======
+	for (t = 1;t<T;t++){
+		printf("MC Iteration %d\n", t);
+		
+
+
+		
+	}
+>>>>>>> 031c08d20fc11466614949ba4ab88f6377e47b8b
 
 }
 
