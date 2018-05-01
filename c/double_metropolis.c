@@ -18,10 +18,14 @@
 
 typedef double (* pdf)(double, double *);
 //pdf functions, fisrt  x, second is pointer to other parameters;
-typedef double (*negp) (double *, double);
-//first x, second parameter. only one parameter;
-typedef void (*auxiliary)(double *);
-//generate auxiliary variable y 
+typedef double (*negp) (double *, double, double *, int **);
+//first is array y; second parameter is the theta of interest;
+//third is pointer to other parameters;
+//fourth is neighbor matrix
+typedef void (*auxiliary)(double *, double *, int **);
+//first is auxiliary array
+//second is pointer to other parameters 
+//third is neighbor matrix
 
 
 /**
@@ -119,27 +123,45 @@ double vector_multiplication(int * array1, double * array2, int size){
  * For alpha:
  **/
 double prior_alpha(double alpha_par, double *other_par){
-	//other_par should have upper bound of alpha uniform prior distribution;
-	return dunif(alpha_par,0,other_par[0],1);
+	//other_par should be the upper and lower bound of uniform distribution
+	return dunif(alpha_par,other_par[0],other_par[1],1);
 }
 
-double negp_alpha_t(double *y, double alpha_par){
+double negp_alpha_t(double *y, double alpha_par, double *other_par, int ** neighbor){
+	//other_par should have N as first param
+	//eta[t] as second param
+	//tau2[t] as third param
 	double ystar[N];
 	for (int i=0;i<N;i++){
 		ystar[i] = 0.0;
 	}
-	return negpotential(y,ystar,N,neighbor,alpha_par,eta[t],tau2[t]);
+	return negpotential(y,ystar,(int) other_par[0],neighbor,alpha_par,param[1],param[2]);
 }
 
 
-double auxi_alpha_t(double *y){
-	return auxiliary_y_gibbs(N, x, y, neighbor, alpha_new, eta[t], tau2[t]);
+double auxi_alpha_t(double *y, double *x,double *other_par, int **neighbor){
+	return auxiliary_y_gibbs((int)other_par[0], x, y, neighbor, other_par[1], other_par[2], other_par[3]);
 }
 
 double dm_step2_t_alpha(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double alpha_new, int **neighbor){
+	double params_alpha_prior[2];
+	double params_alpha_neg[3];
+	double params_alpha_aux[4];
+	params_alpha_prior[0] = 0;
+	params_alpha_neg[0] = N;
+	
 	return dm_step2(N, w_bycol[t], alpha_new, alpha[t], neighbor, negp_alpha_t, auxi_alpha_t);
 }
 
+/**
+ * For eta:
+ **/
+
+double prior_eta(double eta_par, double *other_par){
+	return dunif(eta-par, other_par[0], other_par[1], 1);
+}
+
+double negp_alpha_t(double *y, double alpha_par){
 
 
 

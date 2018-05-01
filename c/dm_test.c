@@ -108,14 +108,6 @@ int main(void){
 	}
 	free(w,alpha,eta,tau2);
 	free(w_bycol);
-	for (t = 1;t<T;t++){
-		printf("MC Iteration %d\n", t);
-		
-
-
-		
-	}
-
 }
 
 
