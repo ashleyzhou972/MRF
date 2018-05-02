@@ -1,12 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#define MATHLIB_STANDALONE
+#include "Rmath.h"
+
+
+/**
+ * @file regular_metropols.c
+ * @author Naihui Zhou (nzhou@iastate.edu)
+ *
+ **/
 
 typedef double (* pdf)(double, double *);
 //pdf functions, fisrt  x, second is pointer to other parameters;
-typedef double (*negp) (double *, double);
-//first x, second parameter. only one parameter;
-typedef void (*auxiliary)(int, double *, double *,int **, double *);
-//generate auxiliary variable y, given special parameter;
 
 
 
@@ -16,13 +22,16 @@ typedef void (*auxiliary)(int, double *, double *,int **, double *);
  **/
 double r_random_walk_chain(double current_y, double var);
 double d_random_walk_chain(double current_y, double proposed_y,double var);
-double jump_probability(double current, double proposed, pdf target);
+double jump_probability(double current, double proposed, pdf targeti, double *param);
+
 
 /**
  * regular metropolis for w
  **/
 
 double log_data_density_univar(double y, double w);
+void metropolis_for_w_univar(int t, int N, double **w, double *y, double var);
+double pdf_lddu(double w, double *y);
 
 
 
@@ -63,7 +72,7 @@ double d_random_walk_chain(double current_y, double proposed_y,double var){
 	//calculate density value of the proposal distribution (q)
 	//should remain the same if exchange the current_y and proposed_y
 	//positions
-	return dnorm(current_y-proposed_y,0.0,var);
+	return dnorm(current_y-proposed_y,0.0,var,1);
 }
 /**
  **************************************
@@ -87,8 +96,8 @@ double jump_probability(double current, double proposed, pdf target,
 	denominator = target(current, param); 
 	alpha = numerator-denominator;
 	prob = exp(alpha);
-	if (prob<1) return prob
-	else return 1
+	if (prob<1) return prob;
+	else return 1;
 }
 
 
@@ -115,15 +124,15 @@ double pdf_lddu(double w, double *y){
  * @param var variance for simulating new values in metropolis
  * @param data_pdf log pdf of data distribution f(y_i|w_i)
  **/
-void metropolis_for_w_univar(int t, double **w, double *y, double var){
+void metropolis_for_w_univar(int t, int N, double **w, double *y, double var){
 	// w is a N by T matrix;
 	// y is a size N vector
-	for (i=0;i<N;i++){
-		double w_new_i;
+	for (int i=0;i<N;i++){
+		double w_new_i, jp;
 		w_new_i = r_random_walk_chain(w[i][t],var);
 		jp = jump_probability(w[i][t],w_new_i,pdf_lddu, &y[i]);
 		double u = runif(0,1);
-		if (u<jp) w[i][t+1] = w_new;
+		if (u<jp) w[i][t+1] = w_new_i;
 		else w[i][t+1] = w[i][t];
 	}
 }
