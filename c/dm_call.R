@@ -2,9 +2,9 @@
 #R wrapper for double metropolis
 ############################################
 
-setwd('/home/nzhou/stat580/finalProject/c/')
+#setwd('/home/nzhou/stat580/finalProject/c/')
 dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_t, inis){
-	if (!is.numeric(total_iter) || !is.numeric(y) || !is.numeric(nb_mat) || !is.numeric(vars) || !is.numeric(bounds_a) || !is.numeric(bounds_e) || !is.numeric(bounds_t) || is.numeric(inis)){
+	if (!is.numeric(total_iter) || !is.numeric(y) || !is.numeric(nb_mat) || !is.numeric(vars) || !is.numeric(bounds_a) || !is.numeric(bounds_e) || !is.numeric(bounds_t) || !is.numeric(inis)){
 		stop("input data not numeric\n")
 	}
 	if (!is.loaded("double_metropolis", PACKAGE="dm_call")){
@@ -12,12 +12,12 @@ dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_
 		dyn.load("dm_call.so")
 	}
 	#print(is.loaded("double_metropolis", PACKAGE="dm_call"))
-	ret = .Call("double_metropolis", T_in = as.integer(total_iter), y_in = as.integer(y),neighbor_in = as.integer(nb_mat),vars_in =as.double(vars), bounds_alpha = as.double(bounds_a), bounds_eta = as.double(bounds_e), bounds_tau2 = as.double(bounds_t),as.double(inis))
+	ret = .Call("double_metropolis", T_in = as.integer(total_iter), y_in = as.double(y),neighbor_in = as.integer(nb_mat),vars_in =as.double(vars), bounds_alpha = as.double(bounds_a), bounds_eta = as.double(bounds_e), bounds_tau2 = as.double(bounds_t),as.double(inis))
 }
 
 total_iter = 100
-y = c(1,2,3,4,5,6,7,8,9)
-y = as.double(y)
+y = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0)
+#y = as.double(y)
 set.seed(2)
 nb_mat = matrix(rbinom(72,1,.5),nrow = 9)
 nb_mat1 = cbind(c(1,0,0,0,0,0,0,0,1),nb_mat)
