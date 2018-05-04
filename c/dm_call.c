@@ -1,16 +1,13 @@
+#include <R.h>
 #include <Rinternals.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#define MATHLIB_STANDALONE
+/*#define MATHLIB_STANDALONE*/
 #include <Rmath.h>
 #include "double_metropolis.h"
 #include "regular_metropolis.h"
 #include "negpotential.h"
-
-
-void allocate(double **w, double **alpha, double **eta, double **tau2,
-		int N, int T);
 
 void allocate_column(double *w, double **w_bycol, int N, int T);
 void initialize(double alpha0, double eta0, double tau20, double *w,
@@ -20,10 +17,11 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	//declaration of variables;
 	int N,T;
 	int *T_p;
-	int *y_int;
-	//double *y;
+/*	int *y_int;*/
+	double *y;
 	int *neighbor_1d;
 	int dim_neighbor;
+	int num_protected = 0;
 	double *vars;
 	double *b_alpha, *b_eta, *b_tau2;
 	double *initials_temp;
@@ -36,13 +34,16 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 		T_p = INTEGER(T_in);
 		T = *T_p;
 	}
-	if (!isInteger(y_in) || !isVector(y_in))
+	if (!isReal(y_in) || !isVector(y_in))
 		error("[ERROR] Second argument must be integer vector");
 	else {
-		y_int = INTEGER(y_in);
+		y = REAL(y_in);
 		N = length(y_in);
 	}
-	int neighbor_2d[N][N];
+	int **neighbor_2d;
+	neighbor_2d = malloc(N*sizeof(int *));
+	for (int i = 0; i < N; ++i)
+		neighbor_2d[i] = malloc(N*sizeof(int));
 	if (!isInteger(neighbor_in) || !isVector(neighbor_in))
 		error("[ERROR] Third argument must be integer vector");
 	else {
@@ -98,16 +99,18 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	}
 	Rprintf("\n");
 	*/
-	double *w = NULL;
-	double **w_bycol = NULL;
-	double *alpha = NULL;
-	double *eta = NULL;
-	double *tau2 = NULL;
+	
+	SEXP R_alpha, R_eta, R_tau2, R_w, R_Return_List;
+	PROTECT(R_w = allocMatrix(REALSXP, N, T+1));
+	PROTECT(R_alpha = allocVector(REALSXP, T+1));
+	PROTECT(R_eta = allocVector(REALSXP, T+1));
+	PROTECT(R_tau2 = allocVector(REALSXP, T+1));
+	PROTECT(R_Return_List = allocVector(VECSXP, 3));
+	num_protected += 5;
+	
 
-	w_bycol = malloc(T*sizeof **w_bycol);
-	allocate(&w, &alpha, &eta, &tau2, N, T+1);
-	allocate_column(w, w_bycol, N, T+1);
-	initialize(alpha0, eta0, tau20, w, alpha, eta, tau2, N, T+1);
+/*	allocate(&w, N, T+1);*/
+	initialize(alpha0, eta0, tau20, REAL(R_w), REAL(R_alpha), REAL(R_eta), REAL(R_tau2), N, T+1);
 
 	int t; //iteration counter;
 
@@ -119,13 +122,18 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	 *	- step3 Use dm to generate posterior tau2
 	 **/
 	double new_alpha, new_eta, new_tau2;
-
+	double *alpha = REAL(R_alpha);
+	double *eta = REAL(R_eta);
+	double *tau2 = REAL(R_tau2);
+	double *w = REAL(R_w);
+	double **w_bycol = malloc(T*sizeof **w_bycol);
+	allocate_column(w, w_bycol, N, T+1);
 	for (t = 0; t < T; ++t) {
 		printf("MC Iteration %d\n", t+1);
 		//step1;
 		metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
 		//step2 (alpha);
-		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1],b_alpha );
+		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1],b_alpha);
 		alpha[t+1] = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
 		//step3 (eta);
 		new_eta = dm_step1(eta[t], prior_eta, vars[2], b_eta);
@@ -136,30 +144,18 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	}
 	free(w_bycol[0]);
 	free(w_bycol);
-	free(alpha);
-	free(eta);
-	free(tau2);
-	free(y);
 	for (int k = 0; k < N; ++k)
-		free(neighbor[k]);
-	free(neighbor);
+		free(neighbor_2d[k]);
+	free(neighbor_2d);
 
-	return R_NilValue;
+	SET_VECTOR_ELT(R_Return_List, 0, R_w);
+	SET_VECTOR_ELT(R_Return_List, 1, R_alpha);
+	SET_VECTOR_ELT(R_Return_List, 2, R_eta);
+	SET_VECTOR_ELT(R_Return_List, 3, R_tau2);
+	UNPROTECT(num_protected);
+	return R_Return_List;
 }
 
-
-void allocate(double **w, double **alpha, double **eta, double **tau2,
-		int N, int T)
-{
-	*w = aligned_alloc(32, T * N * sizeof **w);
-	*alpha = aligned_alloc(32, T*sizeof **alpha);
-	*eta = aligned_alloc(32, T*sizeof **eta);
-	*tau2 = aligned_alloc(32, T*sizeof **tau2);
-	if ((*w == NULL) | (*alpha == NULL) | (*eta == NULL) | (*tau2 == NULL)) {
-		printf("Error allocating memory\n");
-		exit(EXIT_FAILURE);
-	}
-}
 
 void allocate_column(double *w, double **w_bycol, int N, int T)
 {
