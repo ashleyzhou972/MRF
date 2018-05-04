@@ -105,7 +105,7 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	PROTECT(R_alpha = allocVector(REALSXP, T+1));
 	PROTECT(R_eta = allocVector(REALSXP, T+1));
 	PROTECT(R_tau2 = allocVector(REALSXP, T+1));
-	PROTECT(R_Return_List = allocVector(VECSXP, 3));
+	PROTECT(R_Return_List = allocVector(VECSXP, 4));
 	num_protected += 5;
 	
 
@@ -142,12 +142,7 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 		new_tau2 = dm_step1(tau2[t], prior_tau2, vars[3], b_tau2);
 		tau2[t+1] = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor_2d);
 	}
-	free(w_bycol[0]);
-	free(w_bycol);
-	for (int k = 0; k < N; ++k)
-		free(neighbor_2d[k]);
-	free(neighbor_2d);
-
+		
 	SET_VECTOR_ELT(R_Return_List, 0, R_w);
 	SET_VECTOR_ELT(R_Return_List, 1, R_alpha);
 	SET_VECTOR_ELT(R_Return_List, 2, R_eta);
