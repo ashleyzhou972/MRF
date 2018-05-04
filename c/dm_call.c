@@ -1,3 +1,9 @@
+/**
+ * How to compile
+ * gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c dm_call.c -o dm_call.o -fopenmp -DOPENMP
+ * gcc -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o dm_call.so dm_call.o double_metropolis.o regular_metropolis.o negpotential.o -lm -lRmath -L/usr/lib/R/lib -lR -lRmath
+ **/
+
 #include <R.h>
 #include <Rinternals.h>
 #include <stdio.h>
