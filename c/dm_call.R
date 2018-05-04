@@ -17,6 +17,7 @@ dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_
 
 total_iter = 100
 y = c(1,2,3,4,5,6,7,8,9)
+y = as.double(y)
 set.seed(2)
 nb_mat = matrix(rbinom(72,1,.5),nrow = 9)
 nb_mat1 = cbind(c(1,0,0,0,0,0,0,0,1),nb_mat)

@@ -1,10 +1,20 @@
 #include <Rinternals.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
 #include "double_metropolis.h"
 #include "regular_metropolis.h"
 #include "negpotential.h"
+
+
+void allocate(double **w, double **alpha, double **eta, double **tau2,
+		int N, int T);
+
+void allocate_column(double *w, double **w_bycol, int N, int T);
+void initialize(double alpha0, double eta0, double tau20, double *w,
+		double *alpha, double *eta, double *tau2, int N, int T);
 
 SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEXP bounds_alpha, SEXP bounds_eta, SEXP bounds_tau2, SEXP initials){
 	//declaration of variables;
@@ -116,13 +126,13 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 		metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1],b_alpha );
-		alpha[t+1] = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor);
+		alpha[t+1] = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
 		//step3 (eta);
 		new_eta = dm_step1(eta[t], prior_eta, vars[2], b_eta);
-		eta[t+1] = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor);
+		eta[t+1] = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor_2d);
 		//step4 (tau2);
 		new_tau2 = dm_step1(tau2[t], prior_tau2, vars[3], b_tau2);
-		tau2[t+1] = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor);
+		tau2[t+1] = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor_2d);
 	}
 	free(w_bycol[0]);
 	free(w_bycol);
