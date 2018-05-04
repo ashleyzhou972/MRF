@@ -4,10 +4,16 @@
 The overall goal of the project is using Bayesian inference for a Markov Random Field model fitted to gene expression data on the human genome, where the spatial neighborhood information of each gene is inferred from HiC heatmap.
 
 ## Model Specification
-Please see attached model_specification_3.pdf.
+See attached model_specification_3.pdf.
 
 ## Double Metropolis Algorithm
-Please see attached paper by Liang et al.
+See attached paper by Liang et al.
 
+## Usage
+The functions can be accessed through the Rscript `dm_call.R` in the `c` folder.
+Parameter such as of number MCMC iterations, initial values, ... etc can be changed in this R script. 
+Through the `.Call()` function, the data is passed to C to process.
+
+For direct manipulation through C, use `dm_test.c` in the `c/test/` folder.
 
 
