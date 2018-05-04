@@ -15,17 +15,11 @@ dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_
 	ret = .Call("double_metropolis", T_in = as.integer(total_iter), y_in = as.double(y),neighbor_in = as.integer(nb_mat),vars_in =as.double(vars), bounds_alpha = as.double(bounds_a), bounds_eta = as.double(bounds_e), bounds_tau2 = as.double(bounds_t),as.double(inis))
 }
 
-total_iter = 100
-y = c(1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0)
-#y = as.double(y)
-set.seed(2)
-nb_mat = matrix(rbinom(72,1,.5),nrow = 9)
-nb_mat1 = cbind(c(1,0,0,0,0,0,0,0,1),nb_mat)
-nb_mat_int = as.integer(nb_mat1)
-#is.integer(nb_mat_int)
-#is.vector(nb_mat_int)
-#print(nb_mat1[,1])
-#print(nb_mat_int[1:9])
+total_iter = 2000
+load('./simulated_y__new.RData')
+load('./simulated_neighbors_new.RData')
+print(dim(sub_neighbor))
+nb_mat_int = as.integer(sub_neighbor)
 vars = c(0.1,0.2,0.3,0.4)
 bounds_a = c(0,5)
 bounds_e = c(-0.15,0.15)
