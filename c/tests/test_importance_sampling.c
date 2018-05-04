@@ -1,3 +1,9 @@
+/**
+ * @file test_importance_sampling.c
+ * @author Matt Schramm (mschramm@iastate.edu)
+ * to run gcc -Wall -pedantic -o test_import test_importance_sampling.c ../importance_sampling.c -lRmath
+ **/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -5,8 +11,6 @@
 #include <Rmath.h>
 
 #include "../importance_sampling.h"
-
-// typedef double(*func)(double);
 
 double h(double Y)
 {
@@ -23,7 +27,7 @@ double g(double Y) {return dnorm(Y, 4.0, 1.0, 0); }
 double G(double X)
 {
 	// X ~ U(0,1)
-	++X; // ++X to remove warning...
+	(void)X; // ++X to remove warning...
 	return rnorm(4.0, 1.0);
 }
 
@@ -37,7 +41,7 @@ int main(void)
 	double Output[2];
 	int const N = 1000;
 
-	fprintf(stdout,"Test P(Y>=3.0) given Y~N(0,1)\n");
+	fprintf(stdout, "Test P(Y>=3.0) given Y~N(0,1)\n");
 
 	flag = do_important_sampling(h, f, g, G, N, Output);
 	if (flag == 0) {

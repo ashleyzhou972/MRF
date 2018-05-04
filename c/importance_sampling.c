@@ -1,7 +1,6 @@
 // Need to use random tool box from R
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
-
 #include "importance_sampling.h"
 
 int do_important_sampling(func h, func f, func g, func G, int numsamples, double *output)

@@ -2,38 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 #define MATHLIB_STANDALONE
-#include "Rmath.h"
-
-
-/**
- * @file regular_metropols.c
- * @author Naihui Zhou (nzhou@iastate.edu)
- *
- **/
-
-typedef double (* pdf)(double, double *);
-//pdf functions, fisrt  x, second is pointer to other parameters;
-
-
-
-/**
- *
- * For regular metropolis-hastings within Gibbs algorithm
- **/
-double r_random_walk_chain(double current_y, double var);
-double d_random_walk_chain(double current_y, double proposed_y,double var);
-double jump_probability(double current, double proposed, pdf targeti, double *param);
-
-
-/**
- * regular metropolis for w
- **/
-
-double log_data_density_univar(double y, double w);
-void metropolis_for_w_univar(int t, int N, double **w, double *y, double var);
-double pdf_lddu(double w, double *y);
-
-
+#include <Rmath.h>
+#include "regular_metropolis.h"
 
 /**
  * Each of the parameters alpha, eta and tau2
@@ -54,12 +24,15 @@ double pdf_lddu(double w, double *y);
  *  	- all q terms get cancelled in calculating jump probability
  **/
 
-double r_random_walk_chain(double current_y, double var){
-	//simulate (and return) a new value from the proposal 
+double r_random_walk_chain(double current_y, double var)
+{
+	//simulate (and return) a new value from the proposal
 	//distribution (q), given current value;
 	double z, y;
-	z = rnorm(0.0,var);
+
+	z = rnorm(0.0, var);
 	y = current_y + z;
+
 	return y;
 }
 
@@ -68,11 +41,12 @@ double r_random_walk_chain(double current_y, double var){
  * ************************************
  * this function is not used under random walk chain
  **/
-double d_random_walk_chain(double current_y, double proposed_y,double var){
+double d_random_walk_chain(double current_y, double proposed_y, double var)
+{
 	//calculate density value of the proposal distribution (q)
 	//should remain the same if exchange the current_y and proposed_y
 	//positions
-	return dnorm(current_y-proposed_y,0.0,var,1);
+	return dnorm(current_y-proposed_y, 0.0, var, 1);
 }
 /**
  **************************************
@@ -85,34 +59,39 @@ double d_random_walk_chain(double current_y, double proposed_y,double var){
  *  	- all q terms get cancelled in calculating jump probability
  **/
 
-	
-double jump_probability(double current, double proposed, pdf target, 
-		double *param){
+
+double jump_probability(double current, double proposed, pdf target,
+		double *param)
+{
 	//assuming random walk chain
 	//Output of target should be log scaled
 	double alpha, prob;
 	double numerator, denominator;
-	numerator = target(proposed, param); 
-	denominator = target(current, param); 
+
+	numerator = target(proposed, param);
+	denominator = target(current, param);
 	alpha = numerator-denominator;
 	prob = exp(alpha);
-	if (prob<1) return prob;
-	else return 1;
+	if (prob < 1.0)
+		return prob;
+	else
+		return 1.0;
 }
 
 
 /**
- * 
  * The log density of univariate y given w
- * This function drops the factorial!! 
- * Because factorials overflow 
+ * This function drops the factorial!!
+ * Because factorials overflow
  * (1/y!) here can be seen as a constant with regard to w in the posterior
  **/
-double log_data_density_univar(double y, double w){
+double log_data_density_univar(double y, double w)
+{
 	return -exp(w) + w*y;
 }
 
-double pdf_lddu(double w, double *y){
+double pdf_lddu(double w, double *y)
+{
 	return log_data_density_univar(*y, w);
 }
 
@@ -124,18 +103,19 @@ double pdf_lddu(double w, double *y){
  * @param var variance for simulating new values in metropolis
  * @param data_pdf log pdf of data distribution f(y_i|w_i)
  **/
-void metropolis_for_w_univar(int t, int N, double **w, double *y, double var){
+void metropolis_for_w_univar(int t, int N, double **w, double *y, double var)
+{
 	// w is a N by T matrix;
 	// y is a size N vector
-	for (int i=0;i<N;i++){
+	for (int i = 0; i < N; ++i) {
 		double w_new_i, jp;
-		w_new_i = r_random_walk_chain(w[i][t],var);
-		jp = jump_probability(w[i][t],w_new_i,pdf_lddu, &y[i]);
-		double u = runif(0,1);
-		if (u<jp) w[i][t+1] = w_new_i;
-		else w[i][t+1] = w[i][t];
+		double u = runif(0.0, 1.0);
+
+		w_new_i = r_random_walk_chain(w[t][i], var);
+		jp = jump_probability(w[t][i], w_new_i, pdf_lddu, &y[i]);
+		if (u < jp)
+			w[t+1][i] = w_new_i;
+		else
+			w[t+1][i] = w[t][i];
 	}
 }
-
-		
-
