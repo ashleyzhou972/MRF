@@ -17,12 +17,12 @@ For direct manipulation through C, use `dm_test.c` in the `c/test/` folder. (Not
 
 Observed data are stored in two `.RData` files.
 
-Note: \
-In order to take advantage of OpenMP parallel processing, instead of using 
+Note:    
+OpenMP parallel processing is built in. To take advantage of this feature, when compiling the shared R library using 
 ```
 R CMD SHLIB dm_call.c double_metropolis.c negpotential.c regular_metropolis.c
 ```
-to compile the shared R library, use
+instead, use the following,
 ``` 
  gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c dm_call.c -o dm_call.o -fopenmp -DOPENMP
  gcc -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o dm_call.so dm_call.o double_metropolis.o regular_metropolis.o negpotential.o -lm -lRmath -L/usr/lib/R/lib -lR -lRmath
