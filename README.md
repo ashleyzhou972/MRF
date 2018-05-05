@@ -10,10 +10,14 @@ See attached model_specification_3.pdf.
 See attached paper by Liang et al.
 
 ## Usage
-The functions can be accessed through the Rscript `dm_call.R` in the `c` folder.
+The functions can be accessed through the R script `dm_call.R` in the `c` folder.
 Parameter such as of number MCMC iterations, initial values, ... etc can be changed in this R script. 
-Through the `.Call()` function, the data is passed to C to process.
+Through the `.Call()` function, data are passed to C to process.
 
-For direct manipulation through C, use `dm_test.c` in the `c/test/` folder.
+For direct manipulation through C, use `dm_test.c` in the `c/test/` folder. (Note that this means using randomly generated data)
 
+Observed data are stored in two `.RData` files.
+
+Note: \\
+ 
 
