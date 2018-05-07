@@ -1,5 +1,4 @@
 # Double Metropolis Algorithm in C 
-Naihui Zhou and Matt Schramm
 ## Goal
 The overall goal of the project is using Bayesian inference for a Markov Random Field model fitted to gene expression data on the human genome, where the spatial neighborhood information of each gene is inferred from HiC heatmap.
 
@@ -28,5 +27,7 @@ instead, use the following,
  gcc -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o dm_call.so dm_call.o double_metropolis.o regular_metropolis.o negpotential.o -lm -lRmath -L/usr/lib/R/lib -lR -lRmath
 ```
  
- 
+## Acknowledgment
+Matt Schramm contributed to C coding, as part of a course project.
+For original course project, see https://git.linux.iastate.edu/nzhou/stat580FinalProject 
 
