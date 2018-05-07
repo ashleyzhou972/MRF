@@ -131,23 +131,48 @@ int main(void)
 	 *	- step3 Use dm to generate posterior tau2
 	 **/
 	double new_alpha, new_eta, new_tau2;
-
+	int ret_w, ret_alpha, ret_eta, ret_tau2;
+	int jc[4];
 	for (t = 0; t < T; ++t) {
 		printf("MC Iteration %d\n", t+1);
 		//step1;
-		metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
+		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
+		if (ret_w ==1)
+			jc[0] += 1;
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], alpha_bounds);
-		alpha[t+1] = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor);
+		ret_alpha = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor);
+		if (ret_alpha ==1) {
+			alpha[t+1] = new_alpha;
+			jc[1] += 1;
+		}
+		else 
+			alpha[t+1] = alpha[t];
 		//step3 (eta);
 		new_eta = dm_step1(eta[t], prior_eta, vars[2], eta_bounds);
-		eta[t+1] = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor);
+		ret_eta = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor);
+		if (ret_eta == 1) {
+			eta[t+1] = new_eta;
+			jc[2] += 1;
+		}
+		else 
+			eta[t+1] = eta[t];
+
 		//step4 (tau2);
 		new_tau2 = dm_step1(tau2[t], prior_tau2, vars[3], tau2_bounds);
-		tau2[t+1] = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor);
+		ret_tau2 = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor);
+		if (ret_tau2 == 1) {
+			tau2[t+1] = new_tau2;
+			jc[3] += 1;
+		}
+		else 
+			tau2[t+1] = tau2[t];
+
 	}
+	
 	print(T, alpha, eta, tau2);
 
+	printf("jump counts: %d, %d, %d, %d\n", jc[0], jc[1], jc[2], jc[3]);
 	free(w_bycol[0]);
 	free(w_bycol);
 	free(alpha);

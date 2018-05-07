@@ -96,19 +96,18 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	Rprintf("size of data vector is %d\n", N);
 	Rprintf("number of iterations is %d\n", T);
 
-	SEXP R_alpha, R_eta, R_tau2, R_w, R_jc, R_Return_List;
+	SEXP R_alpha, R_eta, R_tau2, R_w, R_Return_List;
 
 	PROTECT(R_w = allocMatrix(REALSXP, N, T+1));
 	PROTECT(R_alpha = allocVector(REALSXP, T+1));
 	PROTECT(R_eta = allocVector(REALSXP, T+1));
 	PROTECT(R_tau2 = allocVector(REALSXP, T+1));
-	PROTECT(R_jc = allocVector(INTSXP, 4));
 	PROTECT(R_Return_List = allocVector(VECSXP, 5));
-	num_protected += 6;
+	num_protected += 5;
 
 /*	allocate(&w, N, T+1);*/
 	initialize(alpha0, eta0, tau20, REAL(R_w), REAL(R_alpha), REAL(R_eta), REAL(R_tau2), N, T+1);
-	
+
 	int t; //iteration counter;
 
 	/**
@@ -123,49 +122,65 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	double *eta = REAL(R_eta);
 	double *tau2 = REAL(R_tau2);
 	double *w = REAL(R_w);
-	int *jc = INTEGER(R_jc);//initialize jump count
-	for (int i = 0; i<4;i++)
-		jc[i] = 0 ;
 	double **w_bycol = malloc(T*sizeof **w_bycol);
-	int ret_alpha, ret_eta, ret_tau2;
+
+	int jc_w = 0;
+	int jc_alpha = 0;
+	int jc_eta = 0;
+	int jc_tau2 = 0;
+	int ret_w, ret_alpha, ret_eta, ret_tau2;
+	allocate_column(w, w_bycol, N, T+1);
 	for (t = 0; t < T; ++t) {
 		printf("MC Iteration %d\n", t+1);
 		//step1;
-		jc[0] += metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
+		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
+		if (ret_w == 1) 
+			jc_w += 1;
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], b_alpha);
 		ret_alpha = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
-		if (ret_alpha==1) {
+		if (ret_alpha == 1) {
 			alpha[t+1] = new_alpha;
-			jc[1] += 1;
+			jc_alpha += 1;
 		}
-		else
+		else 
 			alpha[t+1] = alpha[t];
 		//step3 (eta);
 		new_eta = dm_step1(eta[t], prior_eta, vars[2], b_eta);
 		ret_eta = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor_2d);
-		if (ret_eta==1) {
+		if (ret_eta == 1) {
 			eta[t+1] = new_eta;
-			jc[2] += 1;
+			jc_eta += 1;
 		}
-		else
+		else 
 			eta[t+1] = eta[t];
 		//step4 (tau2);
 		new_tau2 = dm_step1(tau2[t], prior_tau2, vars[3], b_tau2);
 		ret_tau2 = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor_2d);
-		if (ret_tau2==1) {
+		if (ret_tau2 == 1) {
 			tau2[t+1] = new_tau2;
-			jc[3] += 1;
+			jc_tau2 += 1;
 		}
 		else
 			tau2[t+1] = tau2[t];
 	}
-
+	printf("jump counts are %d, %d, %d, %d\n", jc_w, jc_alpha, jc_eta, jc_tau2);
 	SET_VECTOR_ELT(R_Return_List, 0, R_w);
 	SET_VECTOR_ELT(R_Return_List, 1, R_alpha);
 	SET_VECTOR_ELT(R_Return_List, 2, R_eta);
 	SET_VECTOR_ELT(R_Return_List, 3, R_tau2);
+	//begin ;
+	SEXP R_jc;
+	PROTECT(R_jc = allocVector(INTSXP,4));
+	num_protected += 1;
+	int *jc = INTEGER(R_jc);
+	jc[0] = jc_w;
+	jc[1] = jc_alpha;
+	jc[2] = jc_eta;
+	jc[3] = jc_tau2;
 	SET_VECTOR_ELT(R_Return_List, 4, R_jc);
+	//end;
+	
 	UNPROTECT(num_protected);
 	return R_Return_List;
 }
