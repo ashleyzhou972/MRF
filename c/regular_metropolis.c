@@ -107,7 +107,7 @@ int metropolis_for_w_univar(int t, int N, double **w, double *y, double var)
 {
 	// w is a N by T matrix;
 	// y is a size N vector
-	int ret;
+	int jumps = 0;
 	for (int i = 0; i < N; ++i) {
 		double w_new_i, jp;
 		double u = runif(0.0, 1.0);
@@ -116,12 +116,10 @@ int metropolis_for_w_univar(int t, int N, double **w, double *y, double var)
 		jp = jump_probability(w[t][i], w_new_i, pdf_lddu, &y[i]);
 		if (u < jp) {
 			w[t+1][i] = w_new_i;
-			ret = 1;
+			jumps += 1;
 		}
-		else {
+		else 
 			w[t+1][i] = w[t][i];
-			ret = 0;
-		}
 	}
-	return ret;
+	return jumps;
 }

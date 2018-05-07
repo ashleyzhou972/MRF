@@ -131,11 +131,10 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	int ret_w, ret_alpha, ret_eta, ret_tau2;
 	allocate_column(w, w_bycol, N, T+1);
 	for (t = 0; t < T; ++t) {
-		printf("MC Iteration %d\n", t+1);
+		//printf("MC Iteration %d\n", t+1);
 		//step1;
 		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
-		if (ret_w == 1) 
-			jc_w += 1;
+		jc_w += ret_w;
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], b_alpha);
 		ret_alpha = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
@@ -164,7 +163,7 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 		else
 			tau2[t+1] = tau2[t];
 	}
-	printf("jump counts are %d, %d, %d, %d\n", jc_w, jc_alpha, jc_eta, jc_tau2);
+	//printf("jump counts are %d, %d, %d, %d\n", jc_w, jc_alpha, jc_eta, jc_tau2);
 	SET_VECTOR_ELT(R_Return_List, 0, R_w);
 	SET_VECTOR_ELT(R_Return_List, 1, R_alpha);
 	SET_VECTOR_ELT(R_Return_List, 2, R_eta);
