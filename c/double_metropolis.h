@@ -24,7 +24,7 @@ typedef void (*auxiliary)(double *, double *, double *, int **);
  * Main functions
  **/
 double dm_step1(double theta0, pdf target, double var, double *target_params);
-double dm_step2(int size_x, double *x, double theta_new, double theta_current,
+int dm_step2(int size_x, double *x, double theta_new, double theta_current,
 		int **neighbor, negp negpotential,
 		auxiliary auxiliary_y_gibbs_theta, double *par_neg,
 		double *par_auxi);
@@ -53,9 +53,9 @@ void auxi_alpha_t(double *y, double *x, double *other_par, int **neighbor);
 void auxi_eta_t(double *y, double *x, double *other_par, int **neighbor);
 void auxi_tau2_t(double *y, double *x, double *other_par, int **neighbor);
 
-double dm_step2_t_alpha(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double alpha_new, int **neighbor);
-double dm_step2_t_eta(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double eta_new, int **neighbor);
-double dm_step2_t_tau2(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double tau2_new, int **neighbor);
+int dm_step2_t_alpha(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double alpha_new, int **neighbor);
+int dm_step2_t_eta(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double eta_new, int **neighbor);
+int dm_step2_t_tau2(int t, double **w_bycol, double *alpha, double *eta, double *tau2, int N, int T, double tau2_new, int **neighbor);
 
 
 #endif

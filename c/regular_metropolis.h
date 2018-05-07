@@ -25,7 +25,7 @@ double jump_probability(double current, double proposed, pdf targeti, double *pa
  **/
 
 double log_data_density_univar(double y, double w);
-void metropolis_for_w_univar(int t, int N, double **w, double *y, double var);
+int metropolis_for_w_univar(int t, int N, double **w, double *y, double var);
 double pdf_lddu(double w, double *y);
 
 #endif

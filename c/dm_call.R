@@ -2,6 +2,7 @@
 # R wrapper for double metropolis
 ############################################
 
+setwd('/home/nzhou/hic/IMR90/work/dm/MRF_HIC_GE/c')
 dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_t, inis){
 	if (!is.numeric(total_iter) || !is.numeric(y) || !is.numeric(nb_mat) || !is.numeric(vars) || !is.numeric(bounds_a) || !is.numeric(bounds_e) || !is.numeric(bounds_t) || !is.numeric(inis)){
 		stop("input data not numeric\n")

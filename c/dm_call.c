@@ -96,18 +96,19 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	Rprintf("size of data vector is %d\n", N);
 	Rprintf("number of iterations is %d\n", T);
 
-	SEXP R_alpha, R_eta, R_tau2, R_w, R_Return_List;
+	SEXP R_alpha, R_eta, R_tau2, R_w, R_jc, R_Return_List;
 
 	PROTECT(R_w = allocMatrix(REALSXP, N, T+1));
 	PROTECT(R_alpha = allocVector(REALSXP, T+1));
 	PROTECT(R_eta = allocVector(REALSXP, T+1));
 	PROTECT(R_tau2 = allocVector(REALSXP, T+1));
-	PROTECT(R_Return_List = allocVector(VECSXP, 4));
-	num_protected += 5;
+	PROTECT(R_jc = allocVector(INTSXP, 4));
+	PROTECT(R_Return_List = allocVector(VECSXP, 5));
+	num_protected += 6;
 
 /*	allocate(&w, N, T+1);*/
 	initialize(alpha0, eta0, tau20, REAL(R_w), REAL(R_alpha), REAL(R_eta), REAL(R_tau2), N, T+1);
-
+	
 	int t; //iteration counter;
 
 	/**
@@ -122,28 +123,49 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	double *eta = REAL(R_eta);
 	double *tau2 = REAL(R_tau2);
 	double *w = REAL(R_w);
+	int *jc = INTEGER(R_jc);//initialize jump count
+	for (int i = 0; i<4;i++)
+		jc[i] = 0 ;
 	double **w_bycol = malloc(T*sizeof **w_bycol);
-
-	allocate_column(w, w_bycol, N, T+1);
+	int ret_alpha, ret_eta, ret_tau2;
 	for (t = 0; t < T; ++t) {
 		printf("MC Iteration %d\n", t+1);
 		//step1;
-		metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
+		jc[0] += metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], b_alpha);
-		alpha[t+1] = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
+		ret_alpha = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
+		if (ret_alpha==1) {
+			alpha[t+1] = new_alpha;
+			jc[1] += 1;
+		}
+		else
+			alpha[t+1] = alpha[t];
 		//step3 (eta);
 		new_eta = dm_step1(eta[t], prior_eta, vars[2], b_eta);
-		eta[t+1] = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor_2d);
+		ret_eta = dm_step2_t_eta(t, w_bycol, alpha, eta, tau2, N, T, new_eta, neighbor_2d);
+		if (ret_eta==1) {
+			eta[t+1] = new_eta;
+			jc[2] += 1;
+		}
+		else
+			eta[t+1] = eta[t];
 		//step4 (tau2);
 		new_tau2 = dm_step1(tau2[t], prior_tau2, vars[3], b_tau2);
-		tau2[t+1] = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor_2d);
+		ret_tau2 = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor_2d);
+		if (ret_tau2==1) {
+			tau2[t+1] = new_tau2;
+			jc[3] += 1;
+		}
+		else
+			tau2[t+1] = tau2[t];
 	}
 
 	SET_VECTOR_ELT(R_Return_List, 0, R_w);
 	SET_VECTOR_ELT(R_Return_List, 1, R_alpha);
 	SET_VECTOR_ELT(R_Return_List, 2, R_eta);
 	SET_VECTOR_ELT(R_Return_List, 3, R_tau2);
+	SET_VECTOR_ELT(R_Return_List, 4, R_jc);
 	UNPROTECT(num_protected);
 	return R_Return_List;
 }

@@ -103,19 +103,25 @@ double pdf_lddu(double w, double *y)
  * @param var variance for simulating new values in metropolis
  * @param data_pdf log pdf of data distribution f(y_i|w_i)
  **/
-void metropolis_for_w_univar(int t, int N, double **w, double *y, double var)
+int metropolis_for_w_univar(int t, int N, double **w, double *y, double var)
 {
 	// w is a N by T matrix;
 	// y is a size N vector
+	int ret;
 	for (int i = 0; i < N; ++i) {
 		double w_new_i, jp;
 		double u = runif(0.0, 1.0);
 
 		w_new_i = r_random_walk_chain(w[t][i], var);
 		jp = jump_probability(w[t][i], w_new_i, pdf_lddu, &y[i]);
-		if (u < jp)
+		if (u < jp) {
 			w[t+1][i] = w_new_i;
-		else
+			ret = 1;
+		}
+		else {
 			w[t+1][i] = w[t][i];
+			ret = 0;
+		}
 	}
+	return ret;
 }
