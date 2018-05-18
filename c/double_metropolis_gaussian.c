@@ -134,7 +134,7 @@ void auxi_alpha_t(double *y, double *x, double *other_par, int **neighbor)
 	auxiliary_y_gibbs(N, x, y, neighbor, alpha_new, eta, tau2);
 }
 
-int dm_step2_t_alpha(int t, double **w_bycol, double *alpha, double *eta,
+int dm_step2_t_alpha(int t, double *y, double *alpha, double *eta,
 		double *tau2, int N, int T, double alpha_new, int **neighbor)
 {
 	double par_neg[3];
@@ -148,7 +148,7 @@ int dm_step2_t_alpha(int t, double **w_bycol, double *alpha, double *eta,
 	par_auxi[2] = eta[t];
 	par_auxi[3] = tau2[t];
 
-	return dm_step2(N, w_bycol[t], alpha_new, alpha[t], neighbor,
+	return dm_step2(N, y, alpha_new, alpha[t], neighbor,
 			negp_alpha_t, auxi_alpha_t, par_neg, par_auxi);
 }
 
@@ -192,7 +192,7 @@ void auxi_eta_t(double *y, double *x, double *other_par, int **neighbor)
 
 }
 
-int dm_step2_t_eta(int t, double **w_bycol, double *alpha, double *eta,
+int dm_step2_t_eta(int t, double *y, double *alpha, double *eta,
 		double *tau2, int N, int T, double eta_new, int **neighbor)
 {
 	double par_neg[3];
@@ -206,7 +206,7 @@ int dm_step2_t_eta(int t, double **w_bycol, double *alpha, double *eta,
 	par_auxi[2] = eta_new;
 	par_auxi[3] = tau2[t];
 
-	return dm_step2(N, w_bycol[t], eta_new, eta[t], neighbor, negp_eta_t,
+	return dm_step2(N, y, eta_new, eta[t], neighbor, negp_eta_t,
 			auxi_eta_t, par_neg, par_auxi);
 }
 
@@ -250,7 +250,7 @@ void auxi_tau2_t(double *y, double *x, double *other_par, int **neighbor)
 	auxiliary_y_gibbs(N, x, y, neighbor, alpha, eta, tau2_new);
 }
 
-int dm_step2_t_tau2(int t, double **w_bycol, double *alpha, double *eta,
+int dm_step2_t_tau2(int t, double *y, double *alpha, double *eta,
 		double *tau2, int N, int T, double tau2_new, int **neighbor)
 {
 	double par_neg[3];
@@ -264,6 +264,6 @@ int dm_step2_t_tau2(int t, double **w_bycol, double *alpha, double *eta,
 	par_auxi[2] = eta[t+1];
 	par_auxi[3] = tau2_new;
 
-	return dm_step2(N, w_bycol[t], tau2_new, tau2[t], neighbor, negp_tau2_t,
+	return dm_step2(N, y, tau2_new, tau2[t], neighbor, negp_tau2_t,
 			auxi_tau2_t, par_neg, par_auxi);
 }
