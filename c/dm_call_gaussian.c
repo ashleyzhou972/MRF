@@ -15,6 +15,11 @@
 #include "regular_metropolis.h"
 #include "negpotential.h"
 
+/**
+ * The Gaussian case is when we have OBSERVED gaussian spatial MRF
+ * as opposed to an observed Poisson data and mixed with a Gaussian MRF
+ **/
+
 void initialize(double alpha0, double eta0, double tau20,
 		double *alpha, double *eta, double *tau2, int N, int T);
 

@@ -14,6 +14,11 @@
 #include "double_metropolis.h"
 
 
+/**
+ * The Gaussian case is when we have OBSERVED gaussian spatial MRF
+ * as opposed to an observed Poisson data and mixed with a Gaussian MRF
+ **/
+
 double dm_step1(double theta0, pdf target, double var, double *target_params)
 {
 	//in double-metropolis step 1,;
