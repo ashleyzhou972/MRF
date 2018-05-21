@@ -11,7 +11,7 @@
 #include "Rmath.h"
 #include "negpotential.h"
 #include "regular_metropolis.h"
-#include "double_metropolis.h"
+#include "double_metropolis_gaussian.h"
 
 
 /**

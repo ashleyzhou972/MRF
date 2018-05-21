@@ -6,53 +6,13 @@
 #Since the dependence parameter eta should be bounded by characteristics of the adjacency matrix
 #The simulated data should have a valid eta
 
-setwd('/home/nzhou/hic/IMR90/work')
-library(MASS)
-library(mvtnorm)
+#setwd('/home/nzhou/hic/IMR90/work')
+#library(MASS)
+#library(mvtnorm)
 #library(RcppEigen)
 library(Matrix)
-source('./read.R')
+#source('./read.R')
 library(igraph)
-
-#Updated in 20180122:
-#because trace is zero (sum of diagonal values), the max and min eigenvalues are opposite signs
-#so parameter space of eta is h_1^{-1}<eta<h_n^{-1}, where h_1<h_2<...<h_n are eigenvalues
-
-#The larger the absolute eigenvalues, the smaller the sample space
-#How does that connect to eigencentrality?
-
-#Test for different network characteristics
-#Simulate a network with 100 nodes
-#To preserve the network characteristics of the original model
-#scale free network
-
-#characteristics of the original gene network
-net = graph_from_adjacency_matrix(c,mode="undirected")
-dd = degree(net)
-hist(dd,prob=T,main="Histogram of Degrees of HiC Network",xlab="Degree")
-summary(dd)
-##node to edge ratio
-#vcount(net)/ecount(net)
-##power-law (scale free)
-pl<-fit_power_law(dd)
-###alpha=4
-###p=0.75
-
-
-#simulate smaller network with the same characteristics
-##type1, erdos-renyi
-##same v/e ratio
-##BELOW IS JUST EXAMPLE
-rg1<-erdos.renyi.game(100,384,type='gnm')
-##type, power-law with fitness
-rg2<-sample_fitness_pl(100,384,4)
-#hist(degree(rg2),prob=T)
-#fit_power_law(degree(rg2))
-##type3, power-law with preferential attachment (Barabasi-Albert)
-rg3<-sample_pa(100,m=2,zero.appeal = 2,directed=F)
-#hist(degree(rg3),prob=T)
-#fit_power_law(degree(rg3))
-
 
 generate_four_nearest_neighbor_matrix<-function(v,k){
   #v is number of nodes (be an even number please)
@@ -181,6 +141,8 @@ simulate_y_gaussian<-function(net,alpha,eta,tau2,M){
   #using Gibbs
   n = vcount(net)
   sub_neighbor = as_adj(net,type="both",sparse=F)
+  #above has no diagonal values
+  #sub_neighbor = sub_neighbor + diag(n)
   for (t in 1:M){
     w = rep(0,n)
     for (i in 1:n){
@@ -195,24 +157,20 @@ simulate_y_gaussian<-function(net,alpha,eta,tau2,M){
 
 set.seed(2)
 net = graph_from_adjacency_matrix(generate_four_nearest_neighbor_matrix(30,5),mode = "undirected")
-hist(degree(net))
+#quantile(degree(net))
 #power-law distribution
 #components(net)
 #net is connected 
-get_eigen_interval(net)
+print(get_eigen_interval(net)[1:2])
 #eta can range from -0.27 to 0.25
 
-###true values:
-#alpha=2
-#eta = 0.1
-#tau2 = 2
-y=simulate_y_gaussian(net,2,0.1,2,10000)
 
 
-save(y,file='./simulated_y_gaussian.RData')
-sub_neighbor = as_adj(net,type="both",sparse=F)
-save(sub_neighbor,file = './simulated_neighbors_gaussian.RData')
-
+# 
+# save(y,file='./simulated_y_gaussian.RData')
+# sub_neighbor = as_adj(net,type="both",sparse=F)
+# save(sub_neighbor,file = './simulated_neighbors_gaussian.RData')
+#
 
 
 

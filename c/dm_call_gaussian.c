@@ -23,7 +23,7 @@
 void initialize(double alpha0, double eta0, double tau20,
 		double *alpha, double *eta, double *tau2, int N, int T);
 
-SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEXP bounds_alpha, SEXP bounds_eta, SEXP bounds_tau2, SEXP initials)
+SEXP double_metropolis_gaussian(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEXP bounds_alpha, SEXP bounds_eta, SEXP bounds_tau2, SEXP initials)
 {
 	//declaration of variables;
 	int N, T;
@@ -164,13 +164,13 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	SET_VECTOR_ELT(R_Return_List, 2, R_tau2);
 	//begin ;
 	SEXP R_jc;
-	PROTECT(R_jc = allocVector(INTSXP,4));
+	PROTECT(R_jc = allocVector(INTSXP,3));
 	num_protected += 1;
 	int *jc = INTEGER(R_jc);
 	jc[0] = jc_alpha;
 	jc[1] = jc_eta;
 	jc[2] = jc_tau2;
-	SET_VECTOR_ELT(R_Return_List, 4, R_jc);
+	SET_VECTOR_ELT(R_Return_List, 3, R_jc);
 	//end;
 	
 	UNPROTECT(num_protected);
