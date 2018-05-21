@@ -22,6 +22,7 @@ for (counter in 1:5){
   eta_true = truevalues[counter,2]
   tau2_true = truevalues[counter,3]
   y=simulate_y_gaussian(net,alpha_true,eta_true,tau2_true,20000)
+  #save(y,file='./simulated_y_gaussian.RData')
   #load('./simulated_y_gaussian.RData')
   load('./simulated_neighbors_gaussian.RData')
   
