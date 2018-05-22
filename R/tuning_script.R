@@ -9,9 +9,9 @@ B = 2000
 load('./simulated_y__new.RData')
 load('./simulated_neighbors_new.RData')
 #True parameter values
-# alpha = 2
-# eta = 0.1
-# tau2 = 2
+alpha_true = 2
+eta_true = 0.1
+tau2_true = 2
 N = length(y)
 nb_mat_int = as.integer(sub_neighbor)
 #There are four steps of metropolis in each iteration (including double metropolis)
@@ -56,6 +56,15 @@ jump_count = get_jump_frequency(ret1, total_iter, N)
 plot_iterations(total_iter, ret1$alpha, inis1[1],bounds_a[1], bounds_a[2],"alpha")
 plot_iterations(total_iter, ret1$eta, inis1[2],bounds_e[1], bounds_e[2],"eta")
 plot_iterations(total_iter, ret1$tau2, inis1[3],bounds_t[1], bounds_t[2],"tau2")
+
+
+par(mfrow = c(3,1))
+alpha_main = paste("alpha (true= ", alpha_true, ")", sep = "")
+plot_iterations(total_iter, ret1$alpha, inis1[1],bounds_a[1], bounds_a[2],"alpha", alpha_main, alpha_true)
+eta_main = paste("eta (true= ", eta_true, ")", sep = "")
+plot_iterations(total_iter, ret1$eta, inis1[2],bounds_e[1], bounds_e[2],"eta", eta_main, eta_true)
+tau2_main = paste("tau2 (true= ", tau2_true, ")", sep = "")
+plot_iterations(total_iter, ret1$tau2, inis1[3],bounds_t[1], bounds_t[2],"tau2", tau2_main, tau2_true)
 
 ################################################################################
 #Below for running Rscript in command line
