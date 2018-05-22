@@ -15,7 +15,7 @@ B = 2000
 ###true values:
 
 
-truevalues = matrix(c(2,-0.1,4,3,0.1,2,1,0.2,2,1,-0.2,2,2,0,5), nrow = 5, byrow = T)
+truevalues = matrix(c(2,-0.1,4,3,0.1,2,1,0.2,7,1,-0.2,2,2,0,5), nrow = 5, byrow = T)
 
 for (counter in 1:5){
   alpha_true= truevalues[counter,1]
@@ -30,7 +30,7 @@ for (counter in 1:5){
   nb_mat_int = as.integer(sub_neighbor)
   #There are four steps of metropolis in each iteration (including double metropolis)
   #When simulating a new value in each of these metropolis steps, variance of the random walk chain can be specified
-  vars = c(0.65,0.4,0.1,0.2)
+  vars = c(0.7,0.3,0.5,0.3)
   #first var is ignored in the gaussian case
   #parameters for the prior distributions (uniform), for alpha, eta and tau^2
   bounds_a = c(0,10)

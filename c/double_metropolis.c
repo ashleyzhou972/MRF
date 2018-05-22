@@ -77,17 +77,23 @@ void auxiliary_y_gibbs(int size_x, double *x, double *y, int **neighbor,
 	//The generating pdf is the normal with mrf mu;
 	int i = 0;
 	double mu_i, y_new_i;
+	double y_subtracted[size_x];
 
-	for (int k = 0; k < size_x; ++k)
+	for (int k = 0; k < size_x; ++k) {
 		y[k] = x[k]; //starting value is x
+		y_subtracted[k] = y[k] - alpha;
+	}
 
 	//this may be redundant since y is initialized outside of this function;
 	for (i = 0; i < size_x; ++i) {
-		mu_i = alpha + eta*vector_multiplication(neighbor[i], y, size_x);
+		mu_i = alpha + eta*vector_multiplication(neighbor[i], y_subtracted, size_x);
+		//mu_i = alpha + eta*vector_multiplication(neighbor[i], y, size_x);
 		y_new_i = rnorm(mu_i, tau2);
 		y[i] = y_new_i;
+		y_subtracted[i] = y[i] - alpha;
 	}
 }
+
 /**
  * *******************************************************************
  * Above are the general functions

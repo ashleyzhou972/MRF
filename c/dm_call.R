@@ -6,9 +6,10 @@ dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_
 	if (!is.numeric(total_iter) || !is.numeric(y) || !is.numeric(nb_mat) || !is.numeric(vars) || !is.numeric(bounds_a) || !is.numeric(bounds_e) || !is.numeric(bounds_t) || !is.numeric(inis)){
 		stop("input data not numeric\n")
 	}
-	if (!is.loaded("double_metropolis", PACKAGE="dm_call")){
-		print("loading")
-		dyn.load("../c/dm_call.so")
+	else {
+	  cat("loading...\n")
+	  dyn.load("../c/dm_call.so")
+	  cat("loaded status:", is.loaded("double_metropolis", PACKAGE="dm_call"),"\n")
 	}
 	#print(is.loaded("double_metropolis", PACKAGE="dm_call"))
 	ret = .Call("double_metropolis", T_in = as.integer(total_iter), y_in = as.double(y),neighbor_in = as.integer(nb_mat),vars_in =as.double(vars), bounds_alpha = as.double(bounds_a), bounds_eta = as.double(bounds_e), bounds_tau2 = as.double(bounds_t),as.double(inis))
@@ -19,9 +20,10 @@ dm_call_gaussian_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e
 	if (!is.numeric(total_iter) || !is.numeric(y) || !is.numeric(nb_mat) || !is.numeric(vars) || !is.numeric(bounds_a) || !is.numeric(bounds_e) || !is.numeric(bounds_t) || !is.numeric(inis)){
 		stop("input data not numeric\n")
 	}
-	if (!is.loaded("double_metropolis_gaussian", PACKAGE="dm_call_gaussian")){
-		print("loading")
+	else{
+		cat("loading...\n")
 		dyn.load("../c/dm_call_gaussian.so")
+		cat("loaded status:", is.loaded("double_metropolis_gaussian", PACKAGE="dm_call_gaussian"),"\n")
 	}
 	ret = .Call("double_metropolis_gaussian", T_in = as.integer(total_iter), y_in = as.double(y),neighbor_in = as.integer(nb_mat),vars_in =as.double(vars), bounds_alpha = as.double(bounds_a), bounds_eta = as.double(bounds_e), bounds_tau2 = as.double(bounds_t),as.double(inis))
 	return(list(alpha = ret[[1]], eta = ret[[2]], tau2 = ret[[3]], jump_count = ret[[4]]))
