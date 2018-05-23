@@ -6,12 +6,11 @@
 #Since the dependence parameter eta should be bounded by characteristics of the adjacency matrix
 #The simulated data should have a valid eta
 
-setwd('/home/nzhou/hic/IMR90/work')
-library(MASS)
-library(mvtnorm)
+#library(MASS)
+#library(mvtnorm)
 #library(RcppEigen)
 library(Matrix)
-source('./read.R')
+#source('./read.R')
 library(igraph)
 
 #Updated in 20180122:
@@ -27,14 +26,14 @@ library(igraph)
 #scale free network
 
 #characteristics of the original gene network
-net = graph_from_adjacency_matrix(c,mode="undirected")
-dd = degree(net)
-hist(dd,prob=T,main="Histogram of Degrees of HiC Network",xlab="Degree")
-summary(dd)
+#net = graph_from_adjacency_matrix(c,mode="undirected")
+#dd = degree(net)
+#hist(dd,prob=T,main="Histogram of Degrees of HiC Network",xlab="Degree")
+#summary(dd)
 ##node to edge ratio
 #vcount(net)/ecount(net)
 ##power-law (scale free)
-pl<-fit_power_law(dd)
+#pl<-fit_power_law(dd)
 ###alpha=4
 ###p=0.75
 
@@ -43,13 +42,13 @@ pl<-fit_power_law(dd)
 ##type1, erdos-renyi
 ##same v/e ratio
 ##BELOW IS JUST EXAMPLE
-rg1<-erdos.renyi.game(100,384,type='gnm')
+#rg1<-erdos.renyi.game(100,384,type='gnm')
 ##type, power-law with fitness
-rg2<-sample_fitness_pl(100,384,4)
+#rg2<-sample_fitness_pl(100,384,4)
 #hist(degree(rg2),prob=T)
 #fit_power_law(degree(rg2))
 ##type3, power-law with preferential attachment (Barabasi-Albert)
-rg3<-sample_pa(100,m=2,zero.appeal = 2,directed=F)
+#rg3<-sample_pa(100,m=2,zero.appeal = 2,directed=F)
 #hist(degree(rg3),prob=T)
 #fit_power_law(degree(rg3))
 
@@ -104,28 +103,28 @@ simulate_y<-function(net,alpha,eta,tau2,M){
 
 
 #####main######
-
-set.seed(2)
-net = generate_random_graph(3,100,384,4)
-hist(degree(net))
-#power-law distribution
-components(net)
-#net is connected 
-get_eigen_interval(net)
-#eta can range from -0.199 to 0.154
-
-###true values:
-#alpha=2
-#eta = 0.1
-#tau2 = 2
-y=simulate_y(net,2,0.1,2,10000)
-
-
-save(y,file='./simulated_y__new.RData')
-sub_neighbor = as_adj(net,type="both",sparse=F)
-save(sub_neighbor,file = './simulated_neighbors_new.RData')
-
-
+# 
+# set.seed(2)
+# net = generate_random_graph(3,100,384,4)
+# hist(degree(net))
+# #power-law distribution
+# components(net)
+# #net is connected 
+# get_eigen_interval(net)
+# #eta can range from -0.199 to 0.154
+# 
+# ###true values:
+# #alpha=2
+# #eta = 0.1
+# #tau2 = 2
+# y=simulate_y(net,2,0.1,2,10000)
+# 
+# 
+# save(y,file='./simulated_y__new.RData')
+# sub_neighbor = as_adj(net,type="both",sparse=F)
+# save(sub_neighbor,file = './simulated_neighbors_new.RData')
+# 
+# 
 
 
 

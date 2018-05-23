@@ -138,7 +138,7 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], b_alpha);
 		ret_alpha = dm_step2_t_alpha(t, w_bycol, alpha, eta, tau2, N, T, new_alpha, neighbor_2d);
-		if (ret_alpha == 1) {
+		if (ret_alpha == 1) { //accepted;
 			alpha[t+1] = new_alpha;
 			jc_alpha += 1;
 		}
