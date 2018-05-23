@@ -133,7 +133,7 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	for (t = 0; t < T; ++t) {
 		//printf("MC Iteration %d\n", t+1);
 		//step1;
-		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0]);
+		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0], neighbor_2d, alpha[t], eta[t], tau2[t]);
 		jc_w += ret_w;
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], b_alpha);

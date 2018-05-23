@@ -7,7 +7,7 @@ dm_call_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e, bounds_
 		stop("input data not numeric\n")
 	}
 	else {
-	  cat("loading...\n")
+	  cat("loading package...\n")
 	  dyn.load("../c/dm_call.so")
 	  cat("loaded status:", is.loaded("double_metropolis", PACKAGE="dm_call"),"\n")
 	}
@@ -21,7 +21,7 @@ dm_call_gaussian_wrapper<-function(total_iter,y, nb_mat,vars, bounds_a, bounds_e
 		stop("input data not numeric\n")
 	}
 	else{
-		cat("loading...\n")
+		cat("loading package...\n")
 		dyn.load("../c/dm_call_gaussian.so")
 		cat("loaded status:", is.loaded("double_metropolis_gaussian", PACKAGE="dm_call_gaussian"),"\n")
 	}
