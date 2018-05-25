@@ -3,7 +3,7 @@ source('../c/dm_call.R')
 source('../../functions_for_metropolis.R')
 source('../../scaleReductionFactor.R')
 #Total number of iterations
-total_iter = 10000
+total_iter = 20000
 B = 2000
 #load observed data
 load('./simulated_y__new.RData')
@@ -12,27 +12,45 @@ load('./simulated_neighbors_new.RData')
 alpha_true = 2
 eta_true = 0.1
 tau2_true = 2
+
 N = length(y)
 nb_mat_int = as.integer(sub_neighbor)
 #There are four steps of metropolis in each iteration (including double metropolis)
 #When simulating a new value in each of these metropolis steps, variance of the random walk chain can be specified
-vars = c(0.65,0.3,0.02,0.13)
+vars = c(1,1,0.05,1)
 #parameters for the prior distributions (uniform), for alpha, eta and tau^2
 bounds_a = c(0,10)
 bounds_e = c(-0.20,0.155)
 bounds_t = c(0,10)
 #inital guess for alpha, beta and tau^2
 
-inis1 = c(0.5,-0.16,0.5)
+inis1 = c(10,-0.16,0.5)
+
+
+ptm<-proc.time()
+ret1 <- dm_call_wrapper(total_iter, y, nb_mat_int, vars, bounds_a, bounds_e, bounds_t, inis1)
+proc.time()-ptm
+duration=proc.time()-ptm
+cat('Time elapsed',duration[3],'\n')
+
+#jump rate
+jump_count = get_jump_frequency(ret1, total_iter, N)
+print(jump_count)
+#plot
+par(mfrow = c(3,1))
+alpha_main = paste("alpha (true= ", alpha_true, ")", sep = "")
+plot_iterations(total_iter, ret1$alpha, inis1[1],bounds_a[1], bounds_a[2],"alpha", alpha_main, alpha_true)
+eta_main = paste("eta (true= ", eta_true, ")", sep = "")
+plot_iterations(total_iter, ret1$eta, inis1[2],bounds_e[1], bounds_e[2],"eta", eta_main, eta_true)
+tau2_main = paste("tau2 (true= ", tau2_true, ")", sep = "")
+plot_iterations(total_iter, ret1$tau2, inis1[3],bounds_t[1], bounds_t[2],"tau2", tau2_main, tau2_true)
+
+
+###below for calculating scale reduction factor
 inis2 = c(2,0.05,2)
 inis3 = c(5,0,5)
 inis4 = c(10,-0.1,10)
 inis5 = c(1,0.19,1)
-
-ptm<-proc.time()
-
-
-ret1 <- dm_call_wrapper(total_iter, y, nb_mat_int, vars, bounds_a, bounds_e, bounds_t, inis1)
 ret2 <- dm_call_wrapper(total_iter, y, nb_mat_int, vars, bounds_a, bounds_e, bounds_t, inis2)
 ret3 <- dm_call_wrapper(total_iter, y, nb_mat_int, vars, bounds_a, bounds_e, bounds_t, inis3)
 ret4 <- dm_call_wrapper(total_iter, y, nb_mat_int, vars, bounds_a, bounds_e, bounds_t, inis4)
@@ -49,22 +67,6 @@ scaleReductionFactor(alpha)
 scaleReductionFactor(eta)
 scaleReductionFactor(tau2)
 
-#jump rate
-jump_count = get_jump_frequency(ret1, total_iter, N)
-
-#plot
-plot_iterations(total_iter, ret1$alpha, inis1[1],bounds_a[1], bounds_a[2],"alpha")
-plot_iterations(total_iter, ret1$eta, inis1[2],bounds_e[1], bounds_e[2],"eta")
-plot_iterations(total_iter, ret1$tau2, inis1[3],bounds_t[1], bounds_t[2],"tau2")
-
-
-par(mfrow = c(3,1))
-alpha_main = paste("alpha (true= ", alpha_true, ")", sep = "")
-plot_iterations(total_iter, ret1$alpha, inis1[1],bounds_a[1], bounds_a[2],"alpha", alpha_main, alpha_true)
-eta_main = paste("eta (true= ", eta_true, ")", sep = "")
-plot_iterations(total_iter, ret1$eta, inis1[2],bounds_e[1], bounds_e[2],"eta", eta_main, eta_true)
-tau2_main = paste("tau2 (true= ", tau2_true, ")", sep = "")
-plot_iterations(total_iter, ret1$tau2, inis1[3],bounds_t[1], bounds_t[2],"tau2", tau2_main, tau2_true)
 
 ################################################################################
 #Below for running Rscript in command line
