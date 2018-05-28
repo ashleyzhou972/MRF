@@ -12,7 +12,7 @@
 #library(RcppEigen)
 library(Matrix)
 #source('./read.R')
-library(igraph)
+library(igraph,warn.conflicts = F,quietly = T)
 
 generate_four_nearest_neighbor_matrix<-function(v,k){
   #v is number of nodes (be an even number please)
@@ -156,7 +156,7 @@ simulate_y_gaussian<-function(net,alpha,eta,tau2,M){
 #####main######
 
 set.seed(2)
-net = graph_from_adjacency_matrix(generate_four_nearest_neighbor_matrix(30,5),mode = "undirected")
+net = graph_from_adjacency_matrix(generate_four_nearest_neighbor_matrix(900,30),mode = "undirected")
 #quantile(degree(net))
 #power-law distribution
 #components(net)
@@ -169,7 +169,7 @@ print(get_eigen_interval(net)[1:2])
 # 
 # save(y,file='./simulated_y_gaussian.RData')
 # sub_neighbor = as_adj(net,type="both",sparse=F)
-# save(sub_neighbor,file = './simulated_neighbors_gaussian.RData')
+# save(sub_neighbor,file = './simulated_neighbors_30.RData')
 #
 
 

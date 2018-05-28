@@ -16,19 +16,23 @@ B = 2000
 
 
 truevalues = matrix(c(2,-0.1,4,3,0.1,2,1,0.15,7,1,-0.15,2,2,0,5), nrow = 5, byrow = T)
-
+load('./simulated_neighbors_100.RData')
+net = graph_from_adjacency_matrix(sub_neighbor, mode = "undirected")
+LOAD = TRUE
+conter = 1
 for (counter in 1:5){
   alpha_true= truevalues[counter,1]
   eta_true = truevalues[counter,2]
   tau2_true = truevalues[counter,3]
-  load('./simulated_neighbors_100.RData')
-  net = graph_from_adjacency_matrix(sub_neighbor, mode = "undirected")
-  y=simulate_y(net,alpha_true,eta_true,tau2_true,10000)
   filename = paste("./simulated_poisson_",alpha_true,"_", eta_true, "_", tau2_true,".RData",sep = "")
-  save(y,file=filename)
-  #save(y,file='./simulated_y_gaussian.RData')
-  #load('./simulated_y_gaussian.RData')
-  
+  if (LOAD){
+    load(filename)
+    cat("Load simulated y complete\n")
+  }else{
+    y=simulate_y(net,alpha_true,eta_true,tau2_true,10000)
+    save(y,file=filename)
+    cat("Simulation done and saved\n")
+  }
   
   N = length(y)
   nb_mat_int = as.integer(sub_neighbor)

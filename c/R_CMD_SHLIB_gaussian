@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c dm_call_gaussian.c -o dm_call_gaussian.o
+gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c regular_metropolis.c -o regular_metropolis.o
+gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c double_metropolis_gaussian.c -o double_metropolis_gaussian.o
+gcc -std=gnu99 -I/usr/share/R/include -DNDEBUG      -fpic  -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c negpotential.c -o negpotential.o -fopenmp -DOPENMP
+gcc -std=gnu99 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o dm_call_gaussian.so dm_call_gaussian.o regular_metropolis.o double_metropolis_gaussian.o negpotential.o -L/usr/lib/R/lib -lR -lRmath -fopenmp -DOPENMP
+
