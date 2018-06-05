@@ -5,7 +5,8 @@ setwd('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/R')
 source('../c/dm_call.R')
 source('../../functions_for_metropolis.R')
 source('../../scaleReductionFactor.R')
-source('./simulation_100.R')
+source('./simulation_1000.R')
+source('./pseudolikelihood.R')
 #Total number of iterations
 total_iter = 10000
 B = 2000
@@ -19,7 +20,8 @@ truevalues = matrix(c(2,-0.1,4,3,0.1,2,1,0.115,7,1,-0.13,2,2,0,5), nrow = 5, byr
 load('./simulated_neighbors_1000_poisson.RData')
 net = graph_from_adjacency_matrix(sub_neighbor, mode = "undirected")
 LOAD = FALSE
-conter = 1
+date = "20180605"
+#conter = 1
 for (counter in 1:5){
   alpha_true= truevalues[counter,1]
   eta_true = truevalues[counter,2]
@@ -29,7 +31,7 @@ for (counter in 1:5){
     load(filename)
     cat("Load simulated y complete\n")
   }else{
-    y=simulate_y(net,alpha_true,eta_true,tau2_true,10000)
+    y=simulate_y_poisson(net,alpha_true,eta_true,tau2_true,10000)
     save(y,file=filename)
     cat("Simulation done and saved\n")
   }
@@ -51,7 +53,7 @@ for (counter in 1:5){
   jump_count = get_jump_frequency(ret1, total_iter, N)
   print(jump_count)
   
-  png(filename = paste('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/results/20180528','/sim_1000poisson_plot_', counter, '.png',sep = ""), height = 960, width = 780, pointsize = 14)
+  png(filename = paste('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/results/',date,'/sim_1000poisson_plot_', counter, '.png',sep = ""), height = 960, width = 780, pointsize = 14)
   par(mfrow = c(3,1))
   alpha_main = paste("alpha (true= ", alpha_true, ")", sep = "")
   plot_iterations(total_iter, ret1$alpha, inis1[1],bounds_a[1], bounds_a[2],"alpha", alpha_main, alpha_true)

@@ -80,13 +80,14 @@ get_eigen_interval<-function(net){
 #eigen_interval = (-0.07905,0.02263)=0.1016
 
 
-simulate_y<-function(net,alpha,eta,tau2,M){
+simulate_y_poisson<-function(net,alpha,eta,tau2,M){
   #Simulate w's
   #using Gibbs
   n = vcount(net)
   sub_neighbor = as_adj(net,type="both",sparse=F)
   w = rep(0,n)
   for (t in 1:M){
+    cat('simulation iteration', t, '\n')
     for (i in 1:n){
       mu = alpha+eta*sub_neighbor[i,]%*%(w-alpha)
       w[i] = rnorm(1,mu,tau2)
@@ -119,9 +120,8 @@ get_eigen_interval(net)
 # y=simulate_y(net,2,0.1,2,10000)
 # 
 # 
-# save(y,file='./simulated_y__new.RData')
-sub_neighbor = as_adj(net,type="both",sparse=F)
-save(sub_neighbor,file = './simulated_neighbors_1000_poisson.RData')
+#sub_neighbor = as_adj(net,type="both",sparse=F)
+#save(sub_neighbor,file = './simulated_neighbors_1000_poisson.RData')
 # 
 # 
 
