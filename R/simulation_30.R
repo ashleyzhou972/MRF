@@ -121,8 +121,8 @@ simulate_y_poisson<-function(net,alpha,eta,tau2,M){
   #using Gibbs
   n = vcount(net)
   sub_neighbor = as_adj(net,type="both",sparse=F)
+  w = rep(0,n)
   for (t in 1:M){
-    w = rep(0,n)
     for (i in 1:n){
       mu = alpha+eta*sub_neighbor[i,]%*%(w-alpha)
       w[i] = rnorm(1,mu,tau2)
@@ -143,11 +143,13 @@ simulate_y_gaussian<-function(net,alpha,eta,tau2,M){
   sub_neighbor = as_adj(net,type="both",sparse=F)
   #above has no diagonal values
   #sub_neighbor = sub_neighbor + diag(n)
+  w = rep(0,n)
   for (t in 1:M){
-    w = rep(0,n)
+    cat('iteration',t,'\n')
     for (i in 1:n){
       mu = alpha+eta*sub_neighbor[i,]%*%(w-alpha)
       w[i] = rnorm(1,mu,tau2)
+      #print(w)
     }
   }
   return(w)

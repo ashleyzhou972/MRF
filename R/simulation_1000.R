@@ -1,6 +1,5 @@
 #!/usr/bin/env Rscript
 #Simulate a smaller set of data
-#n=100
 #neighborhood informatino randomly drawn from conclique (belongs to two concliques)
 
 #Since the dependence parameter eta should be bounded by characteristics of the adjacency matrix
@@ -104,14 +103,14 @@ simulate_y<-function(net,alpha,eta,tau2,M){
 
 #####main######
 # 
-# set.seed(2)
-# net = generate_random_graph(3,100,384,4)
+set.seed(4)
+net = generate_random_graph(3,1000,10000,5)
 # hist(degree(net))
 # #power-law distribution
 # components(net)
 # #net is connected 
-# get_eigen_interval(net)
-# #eta can range from -0.199 to 0.154
+get_eigen_interval(net)
+# #eta can range from -0.13 to 0.11
 # 
 # ###true values:
 # #alpha=2
@@ -121,8 +120,8 @@ simulate_y<-function(net,alpha,eta,tau2,M){
 # 
 # 
 # save(y,file='./simulated_y__new.RData')
-# sub_neighbor = as_adj(net,type="both",sparse=F)
-# save(sub_neighbor,file = './simulated_neighbors_new.RData')
+sub_neighbor = as_adj(net,type="both",sparse=F)
+save(sub_neighbor,file = './simulated_neighbors_1000_poisson.RData')
 # 
 # 
 

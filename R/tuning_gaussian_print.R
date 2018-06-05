@@ -6,6 +6,7 @@ source('../c/dm_call.R')
 source('../../functions_for_metropolis.R')
 #source('../../scaleReductionFactor.R')
 source('./simulation_30.R')
+source('./pseudolikelihood.R')
 library(stats4)
 #Total number of iterations
 total_iter = 10000
@@ -15,13 +16,12 @@ B = 2000
 #eta can range from -0.27 to 0.25
 ###true values:
 
-LOAD = TRUE #if load =1, load simulated y, instead of simulating new y
-
+LOAD = FALSE #if load =1, load simulated y, instead of simulating new y
+date = "20180605"
 truevalues = matrix(c(2,-0.1,4,3,0.1,2,1,0.2,7,1,-0.2,2,2,0,5), nrow = 5, byrow = T)
 load('./simulated_neighbors_30.RData')
 for (counter in 1:5){
-
-  if (counter==1) LOAD = TRUE
+  if (counter %in% c(1,2,3)) LOAD = TRUE
   else LOAD = FALSE
   alpha_true= truevalues[counter,1]
   eta_true = truevalues[counter,2]
@@ -60,23 +60,44 @@ for (counter in 1:5){
     y_arg = y
     neighbor_arg = sub_neighbor
     n = length(y_arg)
-    sum = 0
+    sum_e = 0
     for (i in 1:n){
       mu_i = alpha+eta*neighbor_arg[i,]%*%(y_arg-alpha)
-      exp_i = (y_arg[i]-mu_i)^2
-      sum = sum + exp_i
+      exp_i = (y_arg[i]-mu_i)^2/tau2
+      sum_e = sum_e + exp_i
     }
-    l = n*log(tau2)+sum/tau2
+    l = n*log(tau2)+sum_e
     #This is the negative log-likelihood
     return(l)
   }
   
   #method is BFGS 
   op2<-mle(logl_2,start=list(alpha =1, eta = 1, tau2 = 1))
-  summary(op2)
-  logLik(op2)
+  print(summary(op2))
+
+  #logLik(op2)
   
-  png(filename = paste('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/results/20180528','/sim_gaussian_plot_', counter, '.png',sep = ""), height = 960, width = 780, pointsize = 14)
+  if (counter %in% c(1,2,4)){
+    tmax = 20
+  } else tmax = 55
+  
+  tau2_seq = seq(0.5,tmax,0.5)
+  tlength = length(tau2_seq)
+  ll = rep(NA, tlength)
+  alpha_hat = rep(NA, tlength)
+  eta_hat = rep(NA, tlength)
+  for (tt in tau2_seq){
+    results = profile_ll(tt)
+    ll[tt*2] = results[[1]]
+    op = results[[2]]
+    alpha_hat[tt*2] = profile_alpha(op)
+    eta_hat[tt*2] = profile_eta(op)
+  }
+  #Start plotting#
+  #date = "20180605"
+  
+  #three panel MCMC
+  png(filename = paste('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/results/',date,'/sim_gaussian_plot_', counter, '.png',sep = ""), height = 960, width = 780, pointsize = 14)
   
   par(mfrow = c(3,1))
   alpha_main = paste("alpha (true= ", alpha_true, ")", sep = "")
@@ -107,24 +128,36 @@ for (counter in 1:5){
   legend(7000,bounds_t[2]+2,c(legend1, legend2, legend3),col = c("#1b9e77","#d95f02","#7570b3"),lty = c(1,2,2),cex=1.2, xpd=TRUE, lwd = 2)
   
   dev.off()
+  
+  #single panel profile likelihood
+  png(filename = paste('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/results/',date,'/sim_gaussian_profile_single', counter, '.png',sep = ""), height = 400, width = 780, pointsize = 14)
+  
+  par()
+  plot(x=tau2_seq,y = ll, xlab = "tau2", ylab = "log likelihood", main = "profile likelihood on tau2", pch = 19, pwd = 1.2,cex.lab  = 1, cex.main = 1)
+  abline(v = truevalues[counter,3], col = 3, lwd = 2)
+  abline(v = tau2_seq[which(ll==max(ll))], col = 4, lty = 2, lwd = 2)
+  legend1 = paste("true simulated tau2:", truevalues[counter,3])
+  legend2 = paste("tau2 estimate from pseudolikelihood:", tau2_seq[which(ll==max(ll))])
+  legend("bottomright", legend = c(legend1,legend2),col = c(3,4), lty = c(1,2),lwd =2, cex = 1)
+  dev.off()
+  
+  #three panel profile likelihood
+  png(filename = paste('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/results/',date,'/sim_gaussian_profile_', counter, '.png',sep = ""), height = 1024, width = 780, pointsize = 14)
+  
+  par(mfrow = c(3,1), xpd = T)
+  plot(x=tau2_seq,y = ll, xlab = "tau2", ylab = "log likelihood", main = "profile likelihood on tau2", cex.lab  = 1.7, cex.main = 1.5)
+  abline(v = truevalues[counter,3], col = 3, lwd = 2)
+  abline(v = tau2_seq[which(ll==max(ll))], col = 4, lty = 2, lwd = 2)
+  legend1 = paste("true simulated tau2:", truevalues[counter,3])
+  legend2 = paste("tau2 estimate from pseudolikelihood:", tau2_seq[which(ll==max(ll))])
+  legend("bottomright", legend = c(legend1,legend2),col = c(3,4), lty = c(1,2),lwd =2, cex = 1.7)
+  
+  plot(x=tau2_seq,y = alpha_hat, xlab = "tau2", ylab = "alpha_hat", cex.lab  = 1.7, cex.main = 1.5)
+  abline(v = truevalues[counter,3], col = 3, lwd = 2)
+  abline(v = tau2_seq[which(ll==max(ll))], col = 4, lty = 2, lwd = 2)
+  plot(x=tau2_seq,y = eta_hat , xlab = "tau2", ylab = "eta_hat", cex.lab  = 1.7, cex.main = 1.5)
+  abline(v = truevalues[counter,3], col = 3, lwd = 2)
+  abline(v = tau2_seq[which(ll==max(ll))], col = 4, lty = 2, lwd = 2)
+  dev.off()
 }
-
-
-
-logl<-function(params, y, neighbor){
-  alpha = params[1]
-  eta = params[2]
-  tau2 = params[3]
-  n = length(y)
-  sum = 0
-  for (i in 1:n){
-    mu_i = alpha+eta*neighbor[i,]%*%(y-alpha)
-    exp_i = (y[i]-mu_i)^2
-    sum = sum + exp_i
-  }
-  l = n*log(tau2)+sum/tau2
-  #This is the negative log-likelihood
-  return(l)
-}
-
 
