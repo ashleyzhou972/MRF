@@ -165,7 +165,7 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 		else
 			tau2[t+1] = tau2[t];
 	}
-	//printf("jump counts are %d, %d, %d, %d\n", jc_w, jc_alpha, jc_eta, jc_tau2);
+	printf("jump counts are %d, %d, %d, %d\n", jc_w, jc_alpha, jc_eta, jc_tau2);
 	SET_VECTOR_ELT(R_Return_List, 0, R_w);
 	SET_VECTOR_ELT(R_Return_List, 1, R_alpha);
 	SET_VECTOR_ELT(R_Return_List, 2, R_eta);
