@@ -14,13 +14,16 @@ delete_burn_in <-function(ret, burn_in){
   return(list(alpha=new_alpha, eta=new_eta, tau2=new_tau2))
 }
 
-get_fitted_y<-function(N, alpha_hat, eta_hat, neighbor, iters){
+get_fitted_y<-function(ret, N, iters){
+  alpha_hat = mean(ret$alpha)
+  eta_hat = mean(ret$eta)
+  neighbor = ret$neighbor
   muhat = rep(0, N) #initial values is alpha_hat-1 to avoid getting 0
   #A Gibbs process
   for (t in 1:iters){
-    print(t)
+    cat(paste("Iteration", t))
     for (i in 1:N) {
-      
+    #This cannot be parallelized because it is updated in each iteration  
       muhat[i] = alpha_hat+eta_hat*(neighbor[i,]%*%(muhat-rep(alpha_hat,N)))
     }
   }
