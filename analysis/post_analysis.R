@@ -6,12 +6,12 @@
 
 
 
-delete_burn_in <-function(ret, burn_in){
+delete_burn_in <-function(ret, burn_in, neighbor){
   total_iter = length(ret$alpha)-1
   new_alpha = ret$alpha[burn_in:total_iter]
   new_eta = ret$eta[burn_in:total_iter]
   new_tau2 = ret$tau2[burn_in:total_iter]
-  return(list(alpha=new_alpha, eta=new_eta, tau2=new_tau2))
+  return(list(alpha=new_alpha, eta=new_eta, tau2=new_tau2, neighbor=neighbor))
 }
 
 get_fitted_y<-function(ret, N, iters){
