@@ -14,10 +14,9 @@ delete_burn_in <-function(ret, burn_in){
   return(list(alpha=new_alpha, eta=new_eta, tau2=new_tau2))
 }
 
-get_fitted_y<-function(N, alpha_hat, eta_hat, neighbor){
+get_fitted_y<-function(N, alpha_hat, eta_hat, neighbor, iters){
   muhat = rep(0, N) #initial values is alpha_hat-1 to avoid getting 0
   #A Gibbs process
-  iters = 5
   for (t in 1:iters){
     print(t)
     for (i in 1:N) {
