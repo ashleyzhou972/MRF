@@ -1,0 +1,9 @@
+/usr/bin/gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/r-3.5.1/include" -dndebug   -i/usr/local/include   -fpic  -g -o2  -c dm_call.c -o dm_call.o
+
+/usr/bin/gcc -std=gnu99 -i"/work/friedberg_lab/nzhou/configure/r-3.5.1/include" -dndebug   -i/usr/local/include   -fpic  -g -o2  -c negpotential.c -o negpotential.o -dopenmp -fopenmp
+
+/usr/bin/gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/r-3.5.1/include" -DNDEBUG   -I/usr/local/include   -fpic  -g -O2  -c double_metropolis.c -o double_metropolis.o
+
+/usr/bin/gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/r-3.5.1/include" -DNDEBUG   -I/usr/local/include   -fpic  -g -O2  -c regular_metropolis.c -o regular_metropolis.o
+ 
+/usr/bin/gcc -std=gnu99 -shared -L/work/friedberg_lab/nzhou/configure/R-3.5.1/lib -L/usr/local/lib64 -o dm_call.so dm_call.o negpotential.o double_metropolis.o regular_metropolis.o -L/work/friedberg_lab/nzhou/configure/R-3.5.1/lib -lR -fopenmp -DOPENMP -I"/work/friedberg_lab/nzhou/configure/R-3.5.1/include" -L/work/friedberg_lab/nzhou/configure//work/friedberg_lab/nzhou/configure/R-3.5.1/src/nmath/standalone -lRmath

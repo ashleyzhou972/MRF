@@ -1,0 +1,11 @@
+vector-vector multiplications appears in three places,
+ - negpotential.c: calculationg H_i and H_ij for each gene i and j;
+ - double_metropolis.c: calculating auxiliary distribution y_auxi;
+ - regular_metropolis.c: mrf density
+
+
+first one MAY be converted to matrix-vector multiplication.
+second one CANNOT be convertd, because it is a Gibbs process, i.e. values of y are being updated.
+third one can be converted to matrix-vector multiplication. 
+
+The generic function vector_multiplication is found in negpotential.c

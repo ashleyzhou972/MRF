@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-/*#define MATHLIB_STANDALONE*/
+#define MATHLIB_STANDALONE
 #include <Rmath.h>
 #include "double_metropolis.h"
 #include "regular_metropolis.h"
@@ -131,9 +131,10 @@ SEXP double_metropolis(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEX
 	int ret_w, ret_alpha, ret_eta, ret_tau2;
 	allocate_column(w, w_bycol, N, T+1);
 	for (t = 0; t < T; ++t) {
-		if (t%50==0) fprintf(stdout, "MC Iteration %d\n", t+1);
-		//printf("MC Iteration %d\n", t+1);
-
+		if (t%10==0) {
+			fprintf(stdout, "MC Iteration %d\n", t+1);
+			printf("MC Iteration %d\n", t+1);
+		}		
 		//step1;
 		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0], neighbor_2d, alpha[t], eta[t], tau2[t]);
 		jc_w += ret_w;

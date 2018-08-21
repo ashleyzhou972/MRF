@@ -25,7 +25,7 @@ double negpotential(double *y, double *ystar, int size_y, int **neighbor, double
 
 	//int num_threads = USE_NUM_THREADS;
 	int num_threads = 16;
-	printf("Number of threads used :%d\n", num_threads); 
+	//printf("Number of threads used :%d\n", num_threads); 
 	double sum_1[num_threads];
 
 	for (int k = 0; k < num_threads; ++k)
