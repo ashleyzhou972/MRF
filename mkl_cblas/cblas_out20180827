@@ -1,0 +1,38 @@
+Load simulated y complete
+loading package...
+loaded status: FALSE 
+size of data vector is 1000
+number of iterations is 100
+MC Iteration 1
+MC Iteration 1
+MC Iteration 11
+MC Iteration 11
+MC Iteration 21
+MC Iteration 21
+MC Iteration 31
+MC Iteration 31
+MC Iteration 41
+MC Iteration 41
+MC Iteration 51
+MC Iteration 51
+MC Iteration 61
+MC Iteration 61
+MC Iteration 71
+MC Iteration 71
+MC Iteration 81
+MC Iteration 81
+MC Iteration 91
+MC Iteration 91
+jump counts are 213, 100, 100, 100
+$w
+[1] 0.00213
+
+$alpha
+[1] 1
+
+$eta
+[1] 1
+
+$tau2
+[1] 1
+

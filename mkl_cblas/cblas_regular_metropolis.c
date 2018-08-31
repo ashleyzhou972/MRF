@@ -3,8 +3,8 @@
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
-#include "regular_metropolis.h"
-#include "negpotential.h"
+#include "cblas_regular_metropolis.h"
+#include "cblas_negpotential.h"
 #include "mkl.h"
 
 /**
@@ -92,20 +92,19 @@ double log_data_density_univar(double y, double w)
 	return -exp(w) + w*y;
 }
 
+
+
 /**
- * w is the column observation at w[t];	
- *w_in may not be the same as w[i];
- *w_in can be newly generated in the Metropolis process;
-**/
-double log_mrf_density_univar(int size_w, int i, double w_in, double *w, int **neighbor, double alpha, double eta, double tau2)
-{
-	double mu_i;
-	double w_subtracted[size_w];
-	for (int k = 0; k<size_w; ++k) 
-		w_subtracted[k] = w[k] - alpha;
-	mu_i = alpha + eta*vector_multiplication(neighbor[i], w_subtracted, size_w);
-	return dnorm(w_in, mu_i, tau2, 1);
-}
+ *
+ * Another version!
+ * Not multivariate in the statistical sense
+ * But calculating mu as a vector
+ *
+ *
+ *
+ **/
+
+
 
 /**
  * Compute the vector mu using cblas in the Intel-mkl library
@@ -116,7 +115,7 @@ void mean_mu(int size_w, double *mu, double *w, int *neighbor_1d, double alpha, 
 	double w_subtracted[size_w];
 	for (int k = 0; k<size_w; ++k) 
 		w_subtracted[k] = w[k] - alpha;
-	double *prod_vec[size_w]; //the product of matrix-vector multiplication;
+	double prod_vec[size_w]; //the product of matrix-vector multiplication;
 	matrix_vector_multiplication(size_w, prod_vec, neighbor_1d, w_subtracted);
 	scalar_vector_multiplication(size_w, eta, mu, prod_vec);
 	scalar_vector_summation(size_w, alpha, mu);
@@ -133,32 +132,25 @@ void mean_mu(int size_w, double *mu, double *w, int *neighbor_1d, double alpha, 
  * @param tau2 variance for the normal distribution
  * @param mu vector for all means of the normal distribution
 **/
-double log_mrf_density_multivar(int size_w, int i, double w_in, double tau2, double *mu)
+double log_mrf_density_vector_mu(int size_w, int i, double w_in, double tau2, double *mu)
 {
 	return dnorm(w_in, mu[i], tau2, 1);
 }
 
-
-double log_sum_density_univar(int size_w, int i, double y, double w_in, double *w, int **neighbor, double alpha, double eta, double tau2)
+double log_sum_density_vector_mu(int size_w, int i, double y, double w_in, double *w, double tau2, double *mu_vec)
 {
 	double sum;
-	sum = log_data_density_univar(y, w_in) + log_mrf_density_univar(size_w, i, w_in, w, neighbor, alpha, eta, tau2);
+	sum = log_data_density_univar(y, w_in) + log_mrf_density_vector_mu(size_w, i, w_in, tau2, mu_vec);
 	return sum;
 }
 
-
-/**
- * @param t  the current iteration
- * try to fill (t+1)th iteration
- * @param w N by T matrix as a double pointer
- * @param y observed data array
- * @param var variance for simulating new values in metropolis
- * @param data_pdf log pdf of data distribution f(y_i|w_i)
- **/
-int metropolis_for_w_univar(int t, int N, double **w, double *y, double var, int **neighbor, double alpha, double eta, double tau2)
+int metropolis_for_w_vector_mu(int t, int N, double **w, double *y, double var, int *neighbor_1d, double alpha, double eta, double tau2)
 {
 	// w is a N by T matrix;
 	// y is a size N vector
+	// Calculating vector mu before iteration for each i;
+	double mu[N];
+	mean_mu(N, mu, w[t], neighbor_1d, alpha, eta);	
 	int jumps = 0;
 	for (int i = 0; i < N; ++i) {
 		double w_new_i, prob, jp;
@@ -171,8 +163,8 @@ int metropolis_for_w_univar(int t, int N, double **w, double *y, double var, int
 		 * not using the jump_probability function
 		 * updated 20180523
 		 **/
-		numerator = log_sum_density_univar(N, i, y[i], w_new_i, w[t], neighbor, alpha, eta, tau2);
-		denominator = log_sum_density_univar(N, i, y[i], w[t][i], w[t], neighbor, alpha, eta, tau2);
+		numerator = log_sum_density_vector_mu(N, i, y[i], w_new_i, w[t], tau2, mu);
+		denominator = log_sum_density_vector_mu(N, i, y[i], w[t][i], w[t], tau2, mu);
 
 		prob = exp(numerator - denominator );
 		if (prob < 1.0)
@@ -188,10 +180,6 @@ int metropolis_for_w_univar(int t, int N, double **w, double *y, double var, int
 			w[t+1][i] = w[t][i];
 	}
 	return jumps;
-}
-
-int metropolis_for_w_vector_mu(int t, int N, double **w, double *y, double var, int *neighbor_1d, alpha, double eta, double tau2)
-{
 }
 
 /**
