@@ -12,18 +12,20 @@
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
 #include "cblas_double_metropolis.h"
-#include "cblas_regular_metropolis.h"
+#include "ms_regular_metropolis.h"
 #include "cblas_negpotential.h"
 
 void allocate_column(double *w, double **w_bycol, int N, int T);
 void initialize_from_input(double *w_in, double alpha0, double eta0, 
 		double tau20, double *w, double *alpha, double *eta, 
 		double *tau2, int N, int T);
-SEXP double_metropolis_cont(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEXP bounds_alpha, SEXP bounds_eta, SEXP bounds_tau2, SEXP initials, SEXP wInitials)
+SEXP double_metropolis_cont(SEXP T_in, SEXP N_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in, SEXP bounds_alpha, SEXP bounds_eta, SEXP bounds_tau2, SEXP initials, SEXP wInitials)
 {
 	//declaration of variables;
-	int N, T;
+	//m is number of samples;
+	int N, T, m;
 	int *T_p;
+	int *N_p;
 /*	int *y_int;*/
 	double *y;
 	int *neighbor_1d;
@@ -36,16 +38,23 @@ SEXP double_metropolis_cont(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in
 	double alpha0, eta0, tau20;
 	//Check incoming SEXP types and extract data
 	if (!isInteger(T_in))
-		error("[ERROR] First argument must be interger");
+		error("[ERROR] Iteration argument must be integer");
 	else {
 		T_p = INTEGER(T_in);
 		T = *T_p;
 	}
-	if (!isReal(y_in) || !isVector(y_in))
-		error("[ERROR] Second argument must be integer vector");
+	if (!isInteger(N_in))
+		error("[ERROR] Size argument must be integer");
 	else {
-		y = REAL(y_in);
-		N = length(y_in);
+		N_p = INTEGER(N_in);
+		N = *N_p;
+	}
+	if (!isReal(y_in) || !isVector(y_in))
+		error("[ERROR] y argument must be real vector");
+	else {
+		y = REAL(y_in); //This is m samples collapsed by column;
+		m = length(y_in) / N;
+		printf("Input %d samples\n", m);
 	}
 
 	int **neighbor_2d;
@@ -54,7 +63,7 @@ SEXP double_metropolis_cont(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in
 	for (int i = 0; i < N; ++i)
 		neighbor_2d[i] = malloc(N*sizeof(int));
 	if (!isInteger(neighbor_in) || !isVector(neighbor_in))
-		error("[ERROR] Third argument must be integer vector");
+		error("[ERROR] Neighborhood argument must be integer vector");
 	else {
 		neighbor_1d = INTEGER(neighbor_in);
 		dim_neighbor = length(neighbor_in);
@@ -148,7 +157,7 @@ SEXP double_metropolis_cont(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in
 			//printf("MC Iteration %d\n", t+1);
 		}		
 		//step1;
-		ret_w = metropolis_for_w_vector_mu(t, N, w_bycol, y, vars[0], neighbor_1d, alpha[t], eta[t], tau2[t]);
+		ret_w = metropolis_for_w_vector_mu(t, N, w_bycol, y, m,  vars[0], neighbor_1d, alpha[t], eta[t], tau2[t]);
 		jc_w += ret_w;
 		//step2 (alpha);
 		new_alpha = dm_step1(alpha[t], prior_alpha, vars[1], b_alpha);

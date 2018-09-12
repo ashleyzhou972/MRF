@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+MKLROOT=/opt/rit/spack-app/linux-rhel7-x86_64/gcc-4.8.5/intel-mkl-2018.1.163-l32qhsiwsdids63t7bvw6v6l2z3ufq33/compilers_and_libraries_2018.1.163/linux/mkl
+

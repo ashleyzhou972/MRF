@@ -3,7 +3,7 @@
 #include <math.h>
 #define MATHLIB_STANDALONE
 #include <Rmath.h>
-#include "cblas_regular_metropolis.h"
+#include "ms_regular_metropolis.h"
 #include "cblas_negpotential.h"
 #include "mkl.h"
 
@@ -81,18 +81,6 @@ double jump_probability(double current, double proposed, pdf target,
 }
 
 
-/**
- * The log density of univariate y given w
- * This function drops the factorial!!
- * Because factorials overflow
- * (1/y!) here can be seen as a constant with regard to w in the posterior
- **/
-double log_data_density_univar(double y, double w)
-{
-	return -exp(w) + w*y;
-}
-
-
 
 /**
  *
@@ -103,6 +91,27 @@ double log_data_density_univar(double y, double w)
  *
  *
  **/
+
+
+/**
+ * The log density of univariate y given w
+ * updated 20180831
+ * @param y is the full vector of all observations from all samples
+ * @param m number of samples
+ * @param N size of a single y vector (number of genes)
+ * @param i gene index
+ * @param w w[i]
+ * This function drops the factorial!!
+ * Because factorials overflow
+ * (1/y!) here can be seen as a constant with regard to w in the posterior
+ **/
+double log_data_density_univar(double *y, int m, int N, int i, double w)
+{
+	double ysum = 0.0;
+	for (int j = 0; j<m; j++) 
+		ysum += y[i+N*j];
+	return -m*exp(w) + w*ysum;
+}
 
 
 
@@ -137,17 +146,17 @@ double log_mrf_density_vector_mu(int size_w, int i, double w_in, double tau2, do
 	return dnorm(w_in, mu[i], tau2, 1);
 }
 
-double log_sum_density_vector_mu(int size_w, int i, double y, double w_in, double *w, double tau2, double *mu_vec)
+double log_sum_density_vector_mu(int size_w, int i, double *y, int m, double w_in, double *w, double tau2, double *mu_vec)
 {
 	double sum;
-	sum = log_data_density_univar(y, w_in) + log_mrf_density_vector_mu(size_w, i, w_in, tau2, mu_vec);
+	sum = log_data_density_univar(y, m, size_w, i, w_in) + log_mrf_density_vector_mu(size_w, i, w_in, tau2, mu_vec);
 	return sum;
 }
 
-int metropolis_for_w_vector_mu(int t, int N, double **w, double *y, double var, int *neighbor_1d, double alpha, double eta, double tau2)
+int metropolis_for_w_vector_mu(int t, int N, double **w, double *y, int m, double var, int *neighbor_1d, double alpha, double eta, double tau2)
 {
 	// w is a N by T matrix;
-	// y is a size N vector
+	// y is a size N*m  vector
 	// Calculating vector mu before iteration for each i;
 	double mu[N];
 	mean_mu(N, mu, w[t], neighbor_1d, alpha, eta);	
@@ -163,8 +172,8 @@ int metropolis_for_w_vector_mu(int t, int N, double **w, double *y, double var, 
 		 * not using the jump_probability function
 		 * updated 20180523
 		 **/
-		numerator = log_sum_density_vector_mu(N, i, y[i], w_new_i, w[t], tau2, mu);
-		denominator = log_sum_density_vector_mu(N, i, y[i], w[t][i], w[t], tau2, mu);
+		numerator = log_sum_density_vector_mu(N, i, y, m,  w_new_i, w[t], tau2, mu);
+		denominator = log_sum_density_vector_mu(N, i, y, m, w[t][i], w[t], tau2, mu);
 
 		prob = exp(numerator - denominator );
 		if (prob < 1.0)

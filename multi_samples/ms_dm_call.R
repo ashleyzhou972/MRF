@@ -1,0 +1,48 @@
+############################################
+# R wrapper for double metropolis
+############################################
+
+dm_call_wrapper<-function(total_iter,N, y, nb_mat,vars, bounds_a, bounds_e, bounds_t, inis, wInis){
+	if (!is.numeric(total_iter) || !is.numeric(y) || !is.numeric(N) || !is.numeric(nb_mat) || !is.numeric(vars) || !is.numeric(bounds_a) || !is.numeric(bounds_e) || !is.numeric(bounds_t) || !is.numeric(inis) || !is.numeric(wInis)){
+		stop("input data not numeric\n")
+	}
+	else {
+	  cat("loading package...\n")
+	  dyn.load("/work/friedberg_lab/nzhou/hic/MRF_HIC_GE/multi_samples/ms_dm_call.so")
+	  cat("loaded status:", is.loaded("double_metropolis_cont", PACKAGE="ms_dm_call"),"\n")
+	}
+	#print(is.loaded("double_metropolis", PACKAGE="dm_call"))
+	ret = .Call("double_metropolis_cont", T_in = as.integer(total_iter), N_in = as.integer(N), y_in = as.double(y) , neighbor_in = as.integer(nb_mat),vars_in =as.double(vars), bounds_alpha = as.double(bounds_a), bounds_eta = as.double(bounds_e), bounds_tau2 = as.double(bounds_t), initials = as.double(inis), wInitials = as.double(wInis))
+	return(list(w = ret[[1]], alpha = ret[[2]], eta = ret[[3]], tau2 = ret[[4]], jump_count = ret[[5]]))
+}
+
+
+
+get_jump_frequency<-function(ret, Ti, N){
+  #ret is a list of returned values from c
+  #Ti is total number of iterations
+  #N is data size
+  
+  jumpcount = ret[[5]]
+  rate_w = jumpcount[1]/(N*Ti)
+  rate_alpha = jumpcount[2]/Ti
+  rate_eta = jumpcount[3]/Ti
+  rate_tau2 = jumpcount[4]/Ti
+  
+  return(list(w = rate_w, alpha = rate_alpha, eta = rate_eta, tau2 = rate_tau2))
+}
+
+
+
+get_jump_frequency_gaussian<-function(ret, Ti, N){
+  #ret is a list of returned values from c
+  #Ti is total number of iterations
+  #N is data size
+  
+  jumpcount = ret[[4]]
+  rate_alpha = jumpcount[1]/Ti
+  rate_eta = jumpcount[2]/Ti
+  rate_tau2 = jumpcount[3]/Ti
+  
+  return(list(alpha = rate_alpha, eta = rate_eta, tau2 = rate_tau2))
+}

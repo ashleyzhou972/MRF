@@ -1,0 +1,2 @@
+dyn.load('cblas_dm_call.so')
+cat("loaded status:", is.loaded("double_metropolis", PACKAGE="cblas_dm_call"),"\n")

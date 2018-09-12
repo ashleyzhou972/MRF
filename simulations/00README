@@ -1,0 +1,6 @@
+Use the following y datasets as simulated datasets:
+	-simulated_1000poisson_*_*_*_ms_234.rds
+
+
+Use the following neighborhood as simulated neighborhood:
+	- simulated_neighbors_1000_poisson.RData

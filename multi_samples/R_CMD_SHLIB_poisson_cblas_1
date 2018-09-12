@@ -1,0 +1,12 @@
+MKLROOT=/opt/rit/spack-app/linux-rhel7-x86_64/gcc-4.8.5/intel-mkl-2018.1.163-l32qhsiwsdids63t7bvw6v6l2z3ufq33/compilers_and_libraries_2018.1.163/linux/mkl
+
+gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/R-3.5.1/include" -DNDEBUG   -I/usr/local/include   -fpic  -g -O2  -c ms_dm_call.c -o ms_dm_call.o
+
+gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/R-3.5.1/include" -DNDEBUG   -I/usr/local/include   -fpic  -g -O2  -c cblas_double_metropolis.c -o cblas_double_metropolis.o
+
+gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/R-3.5.1/include" -DNDEBUG   -I/usr/local/include   -fpic  -g -O2  -c cblas_negpotential.c -o cblas_negpotential.o -fopenmp -DOPENMP  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -lgomp -lpthread -lm -ldl -DMKL_ILP64 -m64 -I${MKLROOT}/include
+
+gcc -std=gnu99 -I"/work/friedberg_lab/nzhou/configure/R-3.5.1/include" -DNDEBUG   -I/usr/local/include   -fpic  -g -O2  -c ms_regular_metropolis.c -o ms_regular_metropolis.o -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -lgomp -lpthread -lm -ldl -DMKL_ILP64 -m64 -I${MKLROOT}/include
+
+gcc -std=gnu99 -shared -L/usr/local/lib64 -o ms_dm_call.so ms_dm_call.o cblas_double_metropolis.o cblas_negpotential.o ms_regular_metropolis.o -L/work/friedberg_lab/nzhou/configure/R_make/lib64/R/lib -lR  -fopenmp -DOPENMP -I"/work/friedberg_lab/nzhou/configure/R-3.5.1/include" -L/work/friedberg_lab/nzhou/configure/R-3.5.1/src/nmath/standalone -lRmath -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -lgomp -lpthread -lm -ldl -DMKL_ILP64 -m64 -I${MKLROOT}/include
+

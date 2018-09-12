@@ -145,7 +145,7 @@ SEXP double_metropolis_cont(SEXP T_in, SEXP y_in, SEXP neighbor_in, SEXP vars_in
 	for (t = 0; t < T; ++t) {
 		if (t%10==0) {
 			fprintf(stdout, "MC Iteration %d\n", t+1);
-			printf("MC Iteration %d\n", t+1);
+			//printf("MC Iteration %d\n", t+1);
 		}		
 		//step1;
 		ret_w = metropolis_for_w_univar(t, N, w_bycol, y, vars[0], neighbor_2d, alpha[t], eta[t], tau2[t]);
