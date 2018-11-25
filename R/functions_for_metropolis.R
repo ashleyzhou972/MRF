@@ -84,8 +84,24 @@ q_function_generic<-function(old,new){
   return(1)
 }
 
+scaleReductionFactor<-function(param){
+  #This is for ONE parameter in the model
+  #param should be a matrix of n rows and M columns
+  #n is the number of iterations so far
+  #M is the number of starting values (chains) we tried
+  n = nrow(param)
+  #M = ncol(param)
+  sample_var = apply(param,MARGIN=2,FUN=var)
+  within_seq_var = mean(sample_var)
+  sample_mean = colMeans(param)
+  between_seq_var = n*var(sample_mean)
+  var_hat = (n-1)/n*within_seq_var+1/n*between_seq_var
+  r = sqrt(var_hat/within_seq_var)
+  return(r)
+}
 
-plot_iterations_srf<-function(Ti,alpha,alpha0,ylim1,ylim2,name){
+
+plot_iterations_srf<-function(Ti,B,alpha,alpha0,ylim1,ylim2,name){
   plot(x=c(1:Ti),y=alpha[1:Ti,1],type='l',xlab = 'iteration',ylab=name,ylim = c(ylim1,ylim2))
   lines(x=c(1:Ti),y=alpha[1:Ti,2],type='l',col=2)
   lines(x=c(1:Ti),y=alpha[1:Ti,3],type='l',col=3)
@@ -95,7 +111,7 @@ plot_iterations_srf<-function(Ti,alpha,alpha0,ylim1,ylim2,name){
   legend("topright",legend=paste('Starting value:', alpha0),col=c(1,2,3,4,5),lty=1)
 }
 
-plot_iterations<-function(Ti,alpha,alpha0,ylim1,ylim2,name,main, true){
+plot_iterations<-function(Ti,B,alpha,alpha0,ylim1,ylim2,name,main, true){
   plot(x=c(1:Ti),y=alpha[1:Ti],type='l',xlab = 'iteration',ylab=name,ylim = c(ylim1,ylim2), main = main, bty = "L", lwd = 2)
   #abline(v=B,col=6)
   abline(h = true, col = "#1b9e77")
@@ -109,3 +125,13 @@ get_posterior_distribution<-function(Ti, B,alpha){
   return(alpha[B:Ti])
 }
 
+assemble_rets<-function(ret1, ret2) {
+#This function concatenates returned objects from two results
+#ret2 should have initial values as the last iteration of ret1
+  newret = list()
+  newret$w = cbind(ret1$w, ret2$w)
+  newret$alpha = c(ret1$alpha, ret2$alpha)
+  newret$eta = c(ret1$eta, ret2$eta)
+  newret$tau2 = c(ret1$tau2, ret2$tau2)
+  return(newret)
+}

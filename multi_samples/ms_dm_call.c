@@ -177,6 +177,9 @@ SEXP double_metropolis_cont(SEXP T_in, SEXP N_in, SEXP y_in, SEXP neighbor_in, S
 		}
 		else 
 			eta[t+1] = eta[t];
+		//update 20181113: for debugging purpose
+		//set eta to 0 
+		//eta[t+1] = 0;	
 		//step4 (tau2);
 		new_tau2 = dm_step1(tau2[t], prior_tau2, vars[3], b_tau2);
 		ret_tau2 = dm_step2_t_tau2(t, w_bycol, alpha, eta, tau2, N, T, new_tau2, neighbor_2d);

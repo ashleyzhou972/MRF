@@ -5,9 +5,9 @@
 # results for hic 5000 is in 20180731 (2000 iterations)
 ##############################
 
-setwd('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/analysis')
+#setwd('/home/nzhou/hic/IMR90/work/MRF_HIC_GE/analysis')
 
-source('../R/post_analysis.R')
+source('./post_analysis.R')
 ####read results 1
 date = '20180727'
 #load(paste('../results/',date,'/returned.RData', sep=""))

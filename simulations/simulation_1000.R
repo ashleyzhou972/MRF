@@ -141,6 +141,7 @@ simulate_y_poisson_mvn<-function(n, sub_neighbor, alpha, eta, tau2, m) {
     Sigma = inv%*%M
   }
   w = mvrnorm(m, alpha_vec, Sigma)
+  dim(w)
   lambda = exp(w)
   y = matrix(NA, nrow=n, ncol=m)
   for (i in 1:n){

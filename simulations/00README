@@ -1,6 +1,35 @@
 Use the following y datasets as simulated datasets:
 	-simulated_1000poisson_*_*_*_ms_234.rds
 
+1: simulated_1000poisson_1_-0.05_1_ms_234.rds
+2: simulated_1000poisson_1_0.05_1_ms_234.rds
+3: simulated_1000poisson_2_-0.1_3_ms_234.rds
+4: simulated_1000poisson_2_0.1_3_ms_234.rds
+5: simulated_1000poisson_2_0_3_ms_234.rds
+
 
 Use the following neighborhood as simulated neighborhood:
 	- simulated_neighbors_1000_poisson.RData
+
+
+In doing the multiple chains analysis with SRF, 
+	run round 1 (myRscript tuning_multiple_chains.R 1)  first until 
+	jump probability is properly tuned for all five chains and then 
+	run the iterative thing until SRF threshold reached (sh tuning_multiple chains.sh) (change round start to 2)
+	!problem: once SRF threshold reached in first try, second round no longer makes jumps
+
+Good results to use:
+	- results_multiple_chains_round1_2_-0.1_3.RData
+	- results_multiple_chains_round1_2_0_3.RData
+	- results_multiple_chains_round1_2_0.1_3.RData
+	- results_multiple_chains_round1_1_0.05_1.RData
+	- results_multiple_chains_round1_1_-0.05_1.RData
+
+Don't set seed!
+
+Update 20181113:
+Re-simulate observed data from MVN
+Only one sample
+in folder post_prelim
+
+

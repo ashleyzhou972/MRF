@@ -6,6 +6,6 @@ vector-vector multiplications appears in three places,
 
 first one MAY be converted to matrix-vector multiplication.
 second one CANNOT be convertd, because it is a Gibbs process, i.e. values of y are being updated.
-third one can be converted to matrix-vector multiplication. 
+third one WILL be converted to matrix-vector multiplication. 
 
-The generic function vector_multiplication is found in negpotential.c
+The generic personal function vector_multiplication is found in negpotential.c

@@ -11,7 +11,7 @@ clean_data<-function(count_vector){
   count_vector[ids] = round(count_vector[ids])
   return(count_vector)
 }
-raw = read_file('./rnaseq_corrected.txt')
+raw = read_file('/work/friedberg_lab/nzhou/hic/work/rnaseq_corrected.txt')
 count = clean_data(raw[,2])
 data = cbind(raw[,-2],count)
 
